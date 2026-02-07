@@ -7,15 +7,15 @@ async function main() {
 		// The folder containing the Extension Manifest package.json
 		// Passed to `--extensionDevelopmentPath`
 		const extensionDevelopmentPath = path.resolve(__dirname, '../../');
-		let extensionTestsPath ='';
+		let extensionTestsPath = '';
 		// The path to the extension test or code coverage script
 		// Passed to --extensionTestsPath
 		if (process.argv[2] === '--codecoverage') {
-		 	extensionTestsPath = path.resolve(__dirname, './suite/codeCoverage');
+			extensionTestsPath = path.resolve(__dirname, './suite/codeCoverage');
 		} else {
 			extensionTestsPath = path.resolve(__dirname, './suite/index');
 		}
-		
+
 		const workSpace = path.resolve(__dirname, '../../extension/src/test/SourceFile/renaming');
 
 		//const wsFile = path.resolve(workSpace, 'comments.lsp');
@@ -24,12 +24,14 @@ async function main() {
 
 		// Download minimum VSCode version defined by our package.json, unzip it and run the integration test environment
 		// aside from testing against our package.json claims, it also avoids random vscode installations bloating dev environments
-		await runTests({ 
+		await runTests({
 			version: process.env.npm_package_engines_vscode.slice(1),
+			platform:
+				process.platform === "win32" ? "win32-x64-archive" : process.platform,
 			extensionDevelopmentPath,
 			extensionTestsPath,
 			launchArgs: [workSpace, '--disable-extensions']
-			});
+		});
 	} catch (err) {
 		console.error('Failed to run tests');
 		process.exit(1);

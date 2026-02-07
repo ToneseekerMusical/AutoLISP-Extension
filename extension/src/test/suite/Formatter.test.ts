@@ -8,7 +8,7 @@ import { ImportMock } from "ts-mock-imports";
 import { AutoLispExt } from "../../context";
 import * as vscode from 'vscode';
 
-let assert = chai.assert;
+let assert: Chai.Assert = chai.assert;
 let testDir = path.join(__dirname + "/../../../extension/src/test");
 const outputDir = path.join(testDir + "/OutputFile");
 
@@ -74,7 +74,7 @@ suite("Lisp Formatter mock Tests", function () {
     );
   });
 
-  setup(()=>{
+  setup(() => {
     resetDefault();
   });
 
@@ -332,11 +332,11 @@ suite("Lisp Formatter mock Tests", function () {
     try {
       const [source, output, baseline] = getFileName(i);
       const doc = ReadonlyDocument.open(source);
-      let anchor = new vscode.Position(4,2);
-      let active = new vscode.Position(20,4);
-      let selectedRange = new vscode.Selection(anchor,active);
+      let anchor = new vscode.Position(4, 2);
+      let active = new vscode.Position(20, 4);
+      let selectedRange = new vscode.Selection(anchor, active);
       let fmt = LispFormatter.format(doc, selectedRange);
-      fmt = doc.getText().replace(doc.getText(selectedRange),fmt);
+      fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
       comparefileSync(i, output, fmt, baseline);
     } catch (err) {
       assert.fail(`The lisp format test case ${i} failed`);
@@ -349,11 +349,11 @@ suite("Lisp Formatter mock Tests", function () {
     try {
       const [source, output, baseline] = getFileName(i);
       const doc = ReadonlyDocument.open(source);
-      let anchor = new vscode.Position(11,12);
-      let active = new vscode.Position(4,4);
-      let selectedRange = new vscode.Selection(anchor,active);
+      let anchor = new vscode.Position(11, 12);
+      let active = new vscode.Position(4, 4);
+      let selectedRange = new vscode.Selection(anchor, active);
       let fmt = LispFormatter.format(doc, selectedRange);
-      fmt = doc.getText().replace(doc.getText(selectedRange),fmt);
+      fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
       comparefileSync(i, output, fmt, baseline);
     } catch (err) {
       assert.fail(`The lisp format test case ${i} failed`);
@@ -366,15 +366,15 @@ suite("Lisp Formatter mock Tests", function () {
     try {
       const [source, output, baseline] = getFileName(i);
       const doc = ReadonlyDocument.open(source);
-      let anchor = new vscode.Position(7,6);
-      let active = new vscode.Position(16,2);
-      let selectedRange = new vscode.Selection(anchor,active);
+      let anchor = new vscode.Position(7, 6);
+      let active = new vscode.Position(16, 2);
+      let selectedRange = new vscode.Selection(anchor, active);
       setClosedParenInSameLine("same line");
       setIndentSpaces(4);
       setMaxLineChars(65);
       setLongListFormat("single column");
       let fmt = LispFormatter.format(doc, selectedRange);
-      fmt = doc.getText().replace(doc.getText(selectedRange),fmt);
+      fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
       comparefileSync(i, output, fmt, baseline);
     } catch (err) {
       assert.fail(`The lisp format test case ${i} failed`);
@@ -421,7 +421,7 @@ suite("Lisp Formatter mock Tests", function () {
       LongListFormat
     );
   }
-  function resetDefault(){
+  function resetDefault() {
     setClosedParenInSameLine('New line with outer indentation');
     setMaxLineChars(85);
     setLongListFormat('Fill to margin');

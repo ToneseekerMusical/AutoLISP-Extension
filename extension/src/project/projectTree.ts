@@ -3,7 +3,7 @@ import { ProjectDefinition } from './projectDefinition';
 import * as vscode from 'vscode';
 import * as path from 'path';
 import { pathEqual } from '../utils';
-import {getTreeItemTitle } from './projectutil'
+import { getTreeItemTitle } from './projectutil'
 
 import * as nls from 'vscode-nls';
 const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
@@ -12,7 +12,7 @@ const fs = require('fs');
 export interface DisplayNode {
     getDisplayText: () => string;
     getTooltip: () => string;
-    getIconUri: () => vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri };
+    getIconUri: () => vscode.Uri | vscode.IconPath;
     getNodeType: () => string;
     getCollapsibleState: () => vscode.TreeItemCollapsibleState;
     setCollapsibleState(state: vscode.TreeItemCollapsibleState): void;
@@ -56,7 +56,7 @@ export class ProjectNode implements DisplayNode {
         this.collapsibleState = state;
     }
 
-    getIconUri(): vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri } {
+    getIconUri(): vscode.Uri | vscode.IconPath {
         return null;//currently we don't provide icon for project node
     }
 }
@@ -91,7 +91,7 @@ export class LspFileNode implements DisplayNode {
     setCollapsibleState() {
     }
 
-    getIconUri(): vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri } {
+    getIconUri(): vscode.Uri | vscode.IconPath {
         this.fileExists = fs.existsSync(this.filePath);
         if (this.fileExists)
             return IconUris.lspFile();
@@ -100,7 +100,7 @@ export class LspFileNode implements DisplayNode {
     }
 }
 
-export class ProjectTreeProvider implements vscode.TreeDataProvider<DisplayNode>{
+export class ProjectTreeProvider implements vscode.TreeDataProvider<DisplayNode> {
     private rootNode: ProjectNode = null;
     private treeControl: vscode.TreeView<DisplayNode> = null;
 
@@ -221,7 +221,7 @@ export function hasFileWithSameName(fileName: string, root: ProjectNode): boolea
     for (let fileNode of root.sourceFiles) {
         let lowerRight = path.basename(fileNode.filePath).toLocaleLowerCase();
 
-        if(lowerLeft == lowerRight)
+        if (lowerLeft == lowerRight)
             return true;
     }
 
@@ -236,5 +236,5 @@ export function addLispFileNode2ProjectTree(root: ProjectNode, fileName: string,
     fileNode.filePath = fileName;
     fileNode.fileExists = fs.existsSync(fileName);
     fileNode.rawFilePath = rawFilePath;
-    root.sourceFiles.push(fileNode);    
+    root.sourceFiles.push(fileNode);
 }

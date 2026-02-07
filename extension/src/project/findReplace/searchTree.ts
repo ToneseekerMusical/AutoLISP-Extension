@@ -1,7 +1,7 @@
 import { DisplayNode, ProjectNode } from '../projectTree';
 import { IconUris } from '../icons';
 import { SearchOption } from './options';
-import {getTreeItemTitle } from '../projectutil'
+import { getTreeItemTitle } from '../projectutil'
 
 import * as vscode from 'vscode';
 import * as nls from 'vscode-nls';
@@ -25,7 +25,7 @@ export class FileNode implements DisplayNode {
         return this.filePath + "\r\n" + this.errorInReplace;
     }
 
-    getIconUri(): vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } {
+    getIconUri(): vscode.Uri | vscode.IconPath {
         if (!this.errorInReplace)
             return IconUris.lspFile();
 
@@ -78,7 +78,7 @@ export class FindingNode implements DisplayNode {
         return tooltip;
     }
 
-    getIconUri(): vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } {
+    getIconUri(): vscode.Uri | vscode.IconPath {
         return null; //no icon for a single find result
     }
 
@@ -142,7 +142,7 @@ export class SummaryNode implements DisplayNode {
         return this.tooltip;
     }
 
-    getIconUri(): vscode.Uri | { light: string | vscode.Uri; dark: string | vscode.Uri; } {
+    getIconUri(): vscode.Uri | vscode.IconPath {
         return null;
     }
 

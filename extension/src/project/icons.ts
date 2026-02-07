@@ -25,7 +25,7 @@ export class IconUris {
         return IconUris.extRootDir;
     }
 
-    public static lspFile(): { light: string | vscode.Uri; dark: string | vscode.Uri } {
+    public static lspFile(): vscode.IconPath {
         if(IconUris.lspFileUri == undefined) {
             IconUris.lspFileUri = {
                 "light" : vscode.Uri.file(path.join(IconUris.extRootDir, 'images', 'light', 'LISP_file.svg')),

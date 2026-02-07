@@ -2,9 +2,9 @@ import * as chai from "chai";
 import * as vscode from "vscode";
 import * as fs from "fs";
 import * as path from "path";
-import {findContainers,getIndentation,isCursorInDoubleQuoteExpr} from "../../format/autoIndent";
+import { findContainers, getIndentation, isCursorInDoubleQuoteExpr } from "../../format/autoIndent";
 import { ReadonlyDocument } from "../../project/readOnlyDocument";
-let assert = chai.assert;
+let assert: Chai.Assert = chai.assert;
 const testDir = path.join(__dirname + "/../../../extension/src/test");
 const outputDir = path.join(testDir + "/OutputFile");
 let indentTestFile = path.join(testDir + "/SourceFile/autoIndentTestFile.lsp");
@@ -25,8 +25,8 @@ suite("Autoindent Tests", function () {
     let fn = "defun enter";
     try {
       let cursorPos2d = new vscode.Position(0, 28);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 2);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -37,8 +37,8 @@ suite("Autoindent Tests", function () {
     let fn = "setq enter";
     try {
       let cursorPos2d = new vscode.Position(1, 13);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       // let containerParens: ElementRange = containerElement.containerParens[0];
       assert.isTrue(lineIndentSpace == 2);
     } catch (err) {
@@ -50,8 +50,8 @@ suite("Autoindent Tests", function () {
     let fn = "cons enter";
     try {
       let cursorPos2d = new vscode.Position(12, 36);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 14);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -62,8 +62,8 @@ suite("Autoindent Tests", function () {
     let fn = "mapcar enter";
     try {
       let cursorPos2d = new vscode.Position(7, 20);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 14);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -74,8 +74,8 @@ suite("Autoindent Tests", function () {
     let fn = "reverse enter";
     try {
       let cursorPos2d = new vscode.Position(6, 25);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 18);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -86,8 +86,8 @@ suite("Autoindent Tests", function () {
     let fn = "lambda enter";
     try {
       let cursorPos2d = new vscode.Position(8, 30);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 17);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -98,8 +98,8 @@ suite("Autoindent Tests", function () {
     let fn = "while enter";
     try {
       let cursorPos2d = new vscode.Position(16, 25);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 2);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -110,8 +110,8 @@ suite("Autoindent Tests", function () {
     let fn = "repeat enter";
     try {
       let cursorPos2d = new vscode.Position(17, 14);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 6);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -122,8 +122,8 @@ suite("Autoindent Tests", function () {
     let fn = "foreach enter";
     try {
       let cursorPos2d = new vscode.Position(21, 19);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 6);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -134,8 +134,8 @@ suite("Autoindent Tests", function () {
     let fn = "if enter";
     try {
       let cursorPos2d = new vscode.Position(22, 18);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 6);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -146,8 +146,8 @@ suite("Autoindent Tests", function () {
     let fn = "progn enter";
     try {
       let cursorPos2d = new vscode.Position(25, 17);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 12);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -158,8 +158,8 @@ suite("Autoindent Tests", function () {
     let fn = "cond enter";
     try {
       let cursorPos2d = new vscode.Position(33, 8);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 4);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -170,8 +170,8 @@ suite("Autoindent Tests", function () {
     let fn = "cursor insider quotes";
     try {
       let cursorPos2d = new vscode.Position(34, 50);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let isInDoubleQuote= isCursorInDoubleQuoteExpr(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let isInDoubleQuote = isCursorInDoubleQuoteExpr(indentTestDoc, cursorPos2d);
       assert.isTrue(isInDoubleQuote == true);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -182,8 +182,8 @@ suite("Autoindent Tests", function () {
     let fn = "block comment enter";
     try {
       let cursorPos2d = new vscode.Position(39, 35);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 5);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -194,8 +194,8 @@ suite("Autoindent Tests", function () {
     let fn = "emtpy line enter";
     try {
       let cursorPos2d = new vscode.Position(20, 2);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 2);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -206,8 +206,8 @@ suite("Autoindent Tests", function () {
     let fn = "NO operator enter";
     try {
       let cursorPos2d = new vscode.Position(43, 1);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 1);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -218,8 +218,8 @@ suite("Autoindent Tests", function () {
     let fn = "list quote enter";
     try {
       let cursorPos2d = new vscode.Position(47, 11);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 10);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -230,8 +230,8 @@ suite("Autoindent Tests", function () {
     let fn = "multiple setq enter";
     try {
       let cursorPos2d = new vscode.Position(49, 9);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 6);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -242,8 +242,8 @@ suite("Autoindent Tests", function () {
     let fn = "text with tab enter";
     try {
       let cursorPos2d = new vscode.Position(52, 34);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 10);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -254,8 +254,8 @@ suite("Autoindent Tests", function () {
     let fn = "after defun before fun name enter";
     try {
       let cursorPos2d = new vscode.Position(54, 7);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 7);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -266,8 +266,8 @@ suite("Autoindent Tests", function () {
     let fn = "after fun name before argment enter";
     try {
       let cursorPos2d = new vscode.Position(55, 11);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 7);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -278,8 +278,8 @@ suite("Autoindent Tests", function () {
     let fn = "after fun name missing argument enter";
     try {
       let cursorPos2d = new vscode.Position(56, 11);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 7);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
@@ -290,34 +290,34 @@ suite("Autoindent Tests", function () {
     let fn = "inside cons enter";
     try {
       let cursorPos2d = new vscode.Position(9, 31);
-      replaceDocWithEnter(indentTestFile,cursorPos2d);
-      let lineIndentSpace = getIndent(indentTestDoc,cursorPos2d);
+      replaceDocWithEnter(indentTestFile, cursorPos2d);
+      let lineIndentSpace = getIndent(indentTestDoc, cursorPos2d);
       assert.isTrue(lineIndentSpace == 23);
     } catch (err) {
       assert.fail(`Autoindent test for ${fn} failed`);
     }
   });
 
-function replaceDocWithEnter(filepath : string, cursorPos2d : vscode.Position){
-  let doc = ReadonlyDocument.open(filepath);
-  let startPt = new vscode.Position(0,0);
-  let selRange = new vscode.Selection(startPt,cursorPos2d);
-  //insert \n to cursor position
-  let newText = doc.getText().replace(doc.getText(selRange),doc.getText(selRange) + "\n");
-  try {
-      fs.writeFileSync(newIndentTestFile,newText);
+  function replaceDocWithEnter(filepath: string, cursorPos2d: vscode.Position) {
+    let doc = ReadonlyDocument.open(filepath);
+    let startPt = new vscode.Position(0, 0);
+    let selRange = new vscode.Selection(startPt, cursorPos2d);
+    //insert \n to cursor position
+    let newText = doc.getText().replace(doc.getText(selRange), doc.getText(selRange) + "\n");
+    try {
+      fs.writeFileSync(newIndentTestFile, newText);
       indentTestDoc = ReadonlyDocument.open(newIndentTestFile);
-  } catch (error) {
-    console.log(error);
+    } catch (error) {
+      console.log(error);
+    }
   }
-}
-function getIndent(doc: vscode.TextDocument,cursorPos2d: vscode.Position) {
-  try {
-    let containerElement = findContainers(doc,cursorPos2d);
-    let lineIndentSpace = getIndentation(doc,containerElement,cursorPos2d);
-    return lineIndentSpace.length;
-  } catch (error) {
-    console.log(error);
+  function getIndent(doc: vscode.TextDocument, cursorPos2d: vscode.Position) {
+    try {
+      let containerElement = findContainers(doc, cursorPos2d);
+      let lineIndentSpace = getIndentation(doc, containerElement, cursorPos2d);
+      return lineIndentSpace.length;
+    } catch (error) {
+      console.log(error);
+    }
   }
-}
 });

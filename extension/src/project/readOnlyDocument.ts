@@ -9,7 +9,7 @@ import * as DclParser from '../parsing/dclParser';
 const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export class ReadonlyLine implements vscode.TextLine {
-    private constructor() {}
+    private constructor() { }
 
     static Create(txt: string, line: number): ReadonlyLine {
         let ret = new ReadonlyLine();
@@ -55,7 +55,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
         if (fs.existsSync(filePath) === false || langId === "") {
             return null;
         }
-        
+
         let ret = new ReadonlyDocument(filePath);
 
         let data = fs.readFileSync(filePath).toString();
@@ -66,7 +66,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
     // Example Use Cases
     //      Identify global variables from fragments of AutoLisp code
     //      Currently in use to save/create PRJ files
-    static createMemoryDocument(fileContent: string, languageId: string): ReadonlyDocument {        
+    static createMemoryDocument(fileContent: string, languageId: string): ReadonlyDocument {
         let ret = new ReadonlyDocument('');
         ret.initialize(fileContent, languageId);
         return ret;
@@ -74,13 +74,13 @@ export class ReadonlyDocument implements vscode.TextDocument {
 
     // Added this to essentially cast standard TextDocument's to a ROD type enabling work to be done with enhanced standardized/functionality
     // Related to to discussion issue#30
-    static getMemoryDocument(doc: vscode.TextDocument): ReadonlyDocument {        
+    static getMemoryDocument(doc: vscode.TextDocument): ReadonlyDocument {
         let ret = new ReadonlyDocument('');
         ret.eol = vscode.EndOfLine.CRLF;
         ret.eolLength = 2;
         ret.lineCount = doc.lineCount;
         ret.languageId = DocumentServices.getSelectorType(doc.fileName);
-        ret.lines = [];        
+        ret.lines = [];
         ret.fileName = doc.fileName;
         for (let i = 0; i < doc.lineCount; i++) {
             ret.lines.push(doc.lineAt(i).text);
@@ -99,18 +99,16 @@ export class ReadonlyDocument implements vscode.TextDocument {
         if (this.fileContent.length === 0) {
             this.lineCount = 0;
             this.lines = [];
-        }
-        else {
+        } else {
             this.lines = this.fileContent.split('\r\n');
             this.lineCount = this.lines.length;
         }
     }
 
-
     fileContent: string;
     lines: string[];
     eolLength: number;
-    private _documentContainer: LispContainer|DclTile; // Added to drastically reduces complexity in other places.
+    private _documentContainer: LispContainer | DclTile;// Added to drastically reduces complexity in other places.
 
     //#region implementing vscode.TextDocument
 
@@ -121,7 +119,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
     version: number;
     isDirty: boolean;
     isClosed: boolean;
-
+    encoding: string;
     eol: vscode.EndOfLine;
     lineCount: number;
 
@@ -135,8 +133,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
         let line = -1;
         if (typeof position === 'number') {
             line = <number>position;
-        }
-        else {
+        } else {
             line = position.line;
         }
 
@@ -174,7 +171,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
 
         for (let line = 0; line < this.lineCount; line++) {
             let lineText = this.lines[line];
-            if ((charCounted + lineText.length) >= offset) {
+            if (charCounted + lineText.length >= offset) {
                 //the offset is inside current line
                 let charNum = offset - charCounted;
 
@@ -183,7 +180,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
 
             //now, the offset is outside current line
 
-            if (line === (this.lineCount - 1)) {
+            if (line === this.lineCount - 1) {
                 //current line is the end of all, so the given position is invalid
                 return new vscode.Position(line, lineText.length);//put the "cursor" after the last char
             }
@@ -237,19 +234,17 @@ export class ReadonlyDocument implements vscode.TextDocument {
     }
     //#endregion
 
-
     equal(doc: vscode.TextDocument): boolean {
         return this.fileName.toUpperCase().replace(/\\/g, '/') === doc.fileName.toUpperCase().replace(/\\/g, '/')
-               && this.fileContent === doc.getText().replace(/\r\n|\r|\n/g, '\r\n'); //.split('\r\n').join('\n').split('\n').join('\r\n');
+            && this.fileContent === doc.getText().replace(/\r\n|\r|\n/g, '\r\n');//.split('\r\n').join('\n').split('\n').join('\r\n');
     }
 
-    
     get documentContainer(): LispContainer {
         if (this.languageId !== DocumentServices.Selectors.LSP) {
             return null;
         }
 
-        return (this._documentContainer instanceof LispContainer)
+        return this._documentContainer instanceof LispContainer
             ? this._documentContainer
             : this._documentContainer = LispParser.getDocumentContainer(this.fileContent);
     }
@@ -259,7 +254,7 @@ export class ReadonlyDocument implements vscode.TextDocument {
             return null;
         }
 
-        return (this._documentContainer instanceof DclTile)
+        return this._documentContainer instanceof DclTile
             ? this._documentContainer
             : this._documentContainer = DclParser.getDocumentTileContainer(this.fileContent);
     }

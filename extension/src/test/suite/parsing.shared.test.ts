@@ -11,7 +11,7 @@ suite("Parsing: Shared Tests", function () {
 	let linuxDoc: ReadonlyDocument;
 
 	suiteSetup(() => {
-		try {			
+		try {
 			windowsDoc = ReadonlyDocument.createMemoryDocument('(defun someFunc ()\r\n\t(command ".line" pause pause)\r\n\t(princ)\r\n)', 'autolisp');
 			linuxDoc = ReadonlyDocument.createMemoryDocument('(defun someFunc ()\n\t(command ".line" pause pause)\n\t(princ)\n)', 'autolisp');
 		} catch (error) {
@@ -22,9 +22,9 @@ suite("Parsing: Shared Tests", function () {
 
 
 
-	test("getEOL() - Using windows CRLF", function () {	
+	test("getEOL() - Using windows CRLF", function () {
 		try {
-			const sut = getEOL(windowsDoc);			
+			const sut = getEOL(windowsDoc);
 			expect(sut).to.equal('\r\n');
 		}
 		catch (err) {
@@ -32,9 +32,9 @@ suite("Parsing: Shared Tests", function () {
 		}
 	});
 
-	test("getEOL() - Using Linux LF, but expect CRLF conversion", function () {	
+	test("getEOL() - Using Linux LF, but expect CRLF conversion", function () {
 		try {
-			const sut = getEOL(linuxDoc);			
+			const sut = getEOL(linuxDoc);
 			expect(sut).to.equal('\r\n');
 		}
 		catch (err) {
@@ -44,7 +44,7 @@ suite("Parsing: Shared Tests", function () {
 
 
 
-	test("endOfLineEnum2String() - forcing coverage of LF", function () {	
+	test("endOfLineEnum2String() - forcing coverage of LF", function () {
 		try {
 			// had to force this since our ReadOnlyDocument auto-converts to CRLF
 			const sut = endOfLineEnum2String(EndOfLine.LF);
@@ -55,9 +55,9 @@ suite("Parsing: Shared Tests", function () {
 		}
 	});
 
-	test("endOfLineEnum2String() - forcing non windows & linux edge case", function () {	
+	test("endOfLineEnum2String() - forcing non windows & linux edge case", function () {
 		try {
-			const sut = endOfLineEnum2String(5);
+			const sut = endOfLineEnum2String(2);
 			expect(sut).to.equal('\r\n');
 		}
 		catch (err) {

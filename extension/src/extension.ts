@@ -3,7 +3,7 @@
 import * as vscode from 'vscode';
 
 import {
-	LanguageClient
+	BaseLanguageClient
 } from 'vscode-languageclient';
 
 
@@ -23,10 +23,10 @@ import * as nls from 'vscode-nls';
 // The example uses the file message format.
 const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
-let client: LanguageClient;
+let client: BaseLanguageClient;
 
 export function activate(context: vscode.ExtensionContext) {
-	AutoLispExt.initialize(context);	
+	AutoLispExt.initialize(context);
 	//-----------------------------------------------------------
 	//1. lisp autoformat
 	//-----------------------------------------------------------
@@ -51,14 +51,10 @@ export function activate(context: vscode.ExtensionContext) {
 	//4. debug adapter
 	DebugProviders.registerLispDebugProviders(context);
 
- 	//-----------------------------------------------------------
-    //5. register the handler to uri scheme: vscode://autodesk.autolispext?......
-    vscode.window.registerUriHandler({
-        handleUri(uri: vscode.Uri) {
-            onUriRequested(uri);
-        }
-	});
-	
+	//-----------------------------------------------------------
+	//5. register the handler to uri scheme: vscode://autodesk.autolispext?......
+	vscode.window.registerUriHandler({ handleUri(uri: vscode.Uri) { onUriRequested(uri) } });
+
 	//-----------------------------------------------------------
 	//6. register commands
 	registerProjectCommands(context);
