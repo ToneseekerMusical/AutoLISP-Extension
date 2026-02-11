@@ -1,21 +1,18 @@
 import * as path from 'path';
 import * as Mocha from 'mocha';
-import * as glob from 'glob';
-export function run(): Promise<void> {
+import { glob } from 'glob';
+export async function run(): Promise<void> {
 	// Create the mocha test
 	const mocha = new Mocha({
 		ui: 'tdd'
 	});
-	mocha.useColors(true);
+	mocha.options.color = true;
 
 	const testsRoot = path.resolve(__dirname, '..');
 
-	return new Promise((c, e) => {
-		glob('**/*.test.js', { cwd: testsRoot }, (err, files) => {
-			if (err) {
-				return e(err);
-			}
-			// Add files to the test suite
+	return new Promise(async (c, e) => {
+		try {
+			let files = await glob('**/*.test.js', { cwd: testsRoot })
 			files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 			try {
 				// Run the mocha test
@@ -27,9 +24,13 @@ export function run(): Promise<void> {
 					}
 				});
 			} catch (err) {
-				console.error(err);
 				e(err);
 			}
-		});
+		} catch {
+			(err) => {
+				return e(err);
+			};
+		}
+
 	});
 }

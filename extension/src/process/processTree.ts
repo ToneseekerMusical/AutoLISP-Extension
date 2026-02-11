@@ -12,14 +12,14 @@ import { join } from 'path';
 
 import { ProcessPathCache } from "./processCache";
 
-function isNothingFound(msg : string) {
-	if(msg && (msg.indexOf('No Instance(s) Available.') >= 0)) {
+function isNothingFound(msg: string) {
+	if (msg && (msg.indexOf('No Instance(s) Available.') >= 0)) {
 		return true;
 	}
 	return false;
 }
 
-export function getProcesses(one: (pid: number, ppid: number, command: string, args: string, exepath: string, date?: number, title?: string) => void) : Promise<void> {
+export function getProcesses(one: (pid: number, ppid: number, command: string, args: string, exepath: string, date?: number, title?: string) => void): Promise<void> {
 
 	function lines(callback: (a: string) => void) {
 		let unfinished = '';
@@ -40,7 +40,7 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 
 		if (process.platform === 'win32') {
 			let acadExeName = undefined;
-			if(ProcessPathCache.globalAcadNameInUserAttachConfig)
+			if (ProcessPathCache.globalAcadNameInUserAttachConfig)
 				acadExeName = ProcessPathCache.globalAcadNameInUserAttachConfig;
 			else
 				acadExeName = 'acad';
@@ -48,12 +48,12 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 			const CMD_PAT = /^(.*)\s+([0-9]+)\.[0-9]+[+-][0-9]+\s+(.*)\s+([0-9]+)\s+([0-9]+)$/;
 			//const CMD_PAT = /^(.*)\s+([0-9]+)\.[0-9]+[+-][0-9]+\s+([0-9]+)\s+([0-9]+)$/;
 			const acadProcFinder = join(__dirname, 'acadProcessFinder.exe');
-			proc = spawn(acadProcFinder, [ acadExeName ]);
+			proc = spawn(acadProcFinder, [acadExeName]);
 			proc.stdout.setEncoding('utf8');
 			proc.stdout.on('data', lines(line => {
 				//let matches = _.compact(line.trim().split(' '));
 				let cells = line.split('\t');
-				if(cells.length == 5) {
+				if (cells.length == 5) {
 					let exePath = cells[0];
 					let startTime = cells[1];
 					let args = cells[2];
@@ -66,14 +66,14 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 
 		} else if (process.platform === 'darwin') {	// OS X
 
-			proc = spawn('/bin/ps', [ '-x', '-o', `pid,ppid,comm=${'a'.repeat(256)},command` ]);
+			proc = spawn('/bin/ps', ['-x', '-o', `pid,ppid,comm=${'a'.repeat(256)},command`]);
 			proc.stdout.setEncoding('utf8');
 			proc.stdout.on('data', lines(line => {
 
-				const pid = Number(line.substr(0, 5));
-				const ppid = Number(line.substr(6, 5));
-				const command = line.substr(12, 256).trim();
-				const args = line.substr(269 + command.length);
+				const pid = Number(line.substring(0, 5));
+				const ppid = Number(line.substring(6, 5));
+				const command = line.substring(12, 256).trim();
+				const args = line.substring(269 + command.length);
 
 				if (!isNaN(pid) && !isNaN(ppid)) {
 					one(pid, ppid, command, args, command);
@@ -82,14 +82,14 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 
 		} else {	// linux
 
-			proc = spawn('/bin/ps', [ '-ax', '-o', 'pid,ppid,comm:20,command' ]);
+			proc = spawn('/bin/ps', ['-ax', '-o', 'pid,ppid,comm:20,command']);
 			proc.stdout.setEncoding('utf8');
 			proc.stdout.on('data', lines(line => {
 
-				const pid = Number(line.substr(0, 5));
-				const ppid = Number(line.substr(6, 5));
-				let command = line.substr(12, 20).trim();
-				let args = line.substr(33);
+				const pid = Number(line.substring(0, 5));
+				const ppid = Number(line.substring(6, 5));
+				let command = line.substring(12, 20).trim();
+				let args = line.substring(33);
 
 				let pos = args.indexOf(command);
 				if (pos >= 0) {
@@ -100,8 +100,8 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 						}
 						pos++;
 					}
-					command = args.substr(0, pos);
-					args = args.substr(pos + 1);
+					command = args.substring(0, pos);
+					args = args.substring(pos + 1);
 				}
 
 				if (!isNaN(pid) && !isNaN(ppid)) {
@@ -116,7 +116,7 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 
 		proc.stderr.setEncoding('utf8');
 		proc.stderr.on('data', data => {
-			if(isNothingFound(data.toString())) {
+			if (isNothingFound(data.toString())) {
 				resolve();
 			}
 			else {

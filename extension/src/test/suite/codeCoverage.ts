@@ -12,10 +12,10 @@ const NYC = require('nyc');
 
 export async function run(): Promise<void> {
 	const reportingDir = path.resolve(__dirname, '../../../coverage');
-	if(fs.existsSync(reportingDir)) {
+	if (fs.existsSync(reportingDir)) {
 		fs.removeSync(reportingDir);
 	}
-	
+
 	// Create the mocha test
 	const mocha = new Mocha({
 		ui: 'tdd',
@@ -24,7 +24,7 @@ export async function run(): Promise<void> {
 			'reportDir': path.resolve(__dirname, '../../../coverage/mochawesome')
 		}
 	});
-	mocha.useColors(true);
+	mocha.options.color = true;
 
 	const testsRoot = path.resolve(__dirname, '..');
 
@@ -61,7 +61,7 @@ async function setupNYC() {
 
 	// To make sure the report is only for current run
 	const tempDirectory = nyc.tempDirectory();
-	if(fs.existsSync(tempDirectory)) {
+	if (fs.existsSync(tempDirectory)) {
 		fs.removeSync(tempDirectory);
 	}
 	await nyc.createTempDirectory();
@@ -80,7 +80,7 @@ async function reportCodeCoverage(nyc) {
 	await nyc.report.bind(nyc)();
 
 	process.stdout.write = currentWrite;
-	
+
 	console.log(textReport);
 	console.log("--------------------------------------------------------");
 	console.log("Open coverage folder to check detailed report in HTML.");

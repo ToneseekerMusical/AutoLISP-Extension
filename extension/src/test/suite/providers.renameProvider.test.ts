@@ -7,10 +7,11 @@ import { ReadonlyDocument } from '../../project/readOnlyDocument';
 import { IRootSymbolHost, SymbolManager } from '../../symbols';
 import { TDD, AutoLispExtPrepareRename, AutoLispExtProvideRenameEdits } from '../../providers/renameProvider';
 import { AutoLispExt } from '../../context';
+import { WorkspaceEdit } from 'vscode-languageclient';
 
 let docSymbols: IRootSymbolHost;
 
-suite("RenameProvider: Tests", function () {	
+suite("RenameProvider: Tests", function () {
 	let roDoc: ReadonlyDocument;
 	let good: Position;
 	let bad: Position;
@@ -37,7 +38,7 @@ suite("RenameProvider: Tests", function () {
 
 
 
-	test("AutoLispExtPrepareRename() Valid Atom", function () {	
+	test("AutoLispExtPrepareRename() Valid Atom", function () {
 		try {
 			const prepResult = AutoLispExtPrepareRename(roDoc, good);
 			expect(prepResult.range.start.line).to.equal(24);
@@ -51,7 +52,7 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtPrepareRename() Invalid Atom", function () {	
+	test("AutoLispExtPrepareRename() Invalid Atom", function () {
 		try {
 			expect(AutoLispExtPrepareRename(roDoc, bad)).to.equal(null);
 		}
@@ -63,7 +64,7 @@ suite("RenameProvider: Tests", function () {
 
 
 
-	test("AutoLispExtProvideRenameEdits() Un-Hosted Atom", async function () {	
+	test("AutoLispExtProvideRenameEdits() Un-Hosted Atom", async function () {
 		try {
 			const sut = AutoLispExtProvideRenameEdits(roDoc, outlier, 'anything');
 			expect(sut.entries().length).to.equal(1);
@@ -73,7 +74,7 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits() Localized Atom", async function () {	
+	test("AutoLispExtProvideRenameEdits() Localized Atom", async function () {
 		try {
 			const sut = AutoLispExtProvideRenameEdits(roDoc, localized, 'activeDOC');
 			expect(sut.entries().length).to.equal(1);
@@ -83,7 +84,7 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits() Exported Defun", async function () {	
+	test("AutoLispExtProvideRenameEdits() Exported Defun", async function () {
 		try {
 			const sut = AutoLispExtProvideRenameEdits(roDoc, globalDefun, 'otherFunc');
 			expect(sut.entries().length).to.equal(3);
@@ -93,7 +94,7 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits() Documented Local Argument", async function () {	
+	test("AutoLispExtProvideRenameEdits() Documented Local Argument", async function () {
 		try {
 			const sut = AutoLispExtProvideRenameEdits(roDoc, localArg, 'dim');
 			expect(sut.entries().length).to.equal(1);
@@ -103,7 +104,7 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits() bad user input", async function () {	
+	test("AutoLispExtProvideRenameEdits() bad user input", async function () {
 		try {
 			const sut = AutoLispExtProvideRenameEdits(roDoc, good, 'a b c');
 			expect(sut).to.equal(null);
@@ -113,7 +114,7 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits() bad user target", async function () {	
+	test("AutoLispExtProvideRenameEdits() bad user target", async function () {
 		try {
 			const sut = AutoLispExtProvideRenameEdits(roDoc, native, 'whatever');
 			expect(sut.entries().length).to.equal(1);
@@ -123,18 +124,18 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits() good user input", async function () {	
+	test("AutoLispExtProvideRenameEdits() good user input", async function () {
 		try {
-			const sut = AutoLispExtProvideRenameEdits(roDoc, good, 'anything');			
+			const sut = AutoLispExtProvideRenameEdits(roDoc, good, 'anything');
 			expect(sut.size).to.equal(2);
-			expect(sut['_edits'].length).to.equal(4);
+			expect(sut['a'].length).to.equal(4);
 		}
 		catch (err) {
 			assert.fail("The known position failed to produced results or results other than expected");
 		}
 	});
 
-	test("AutoLispExtProvideRenameEdits()", async function () {	
+	test("AutoLispExtProvideRenameEdits()", async function () {
 		try {
 			const prepResult = AutoLispExtProvideRenameEdits(roDoc, good, 'Autoquad');
 			prepResult.entries().forEach(item => {
@@ -151,7 +152,7 @@ suite("RenameProvider: Tests", function () {
 
 
 
-	test("RenameProviderSupport.getRenameTargetsFromParentScope()", function () {	
+	test("RenameProviderSupport.getRenameTargetsFromParentScope()", function () {
 		try {
 			docSymbols = SymbolManager.getSymbolMap(roDoc);
 			const targets = TDD.getRenameTargetsFromParentScope(roDoc, docSymbols, 'globalsareloaded');
@@ -163,9 +164,9 @@ suite("RenameProvider: Tests", function () {
 	});
 
 
-	
 
-	test("RenameProviderSupport.getTargetSymbolReference() with bad inputs", function () {	
+
+	test("RenameProviderSupport.getTargetSymbolReference() with bad inputs", function () {
 		try {
 			docSymbols = SymbolManager.getSymbolMap(roDoc);
 			const sut = TDD.getTargetSymbolReference(docSymbols, 'missing', -1);
@@ -179,7 +180,7 @@ suite("RenameProvider: Tests", function () {
 
 
 
-	test("RenameProviderSupport.hasGlobalizer() with unused key name", function () {	
+	test("RenameProviderSupport.hasGlobalizer() with unused key name", function () {
 		try {
 			const sut = TDD.hasGlobalizer([roDoc], 'missing');
 			expect(sut).to.equal(false);
@@ -189,10 +190,10 @@ suite("RenameProvider: Tests", function () {
 		}
 	});
 
-	
-	
-	
-	test("RenameProviderSupport.isValidInput()", function () {	
+
+
+
+	test("RenameProviderSupport.isValidInput()", function () {
 		try {
 			expect(TDD.isValidInput('space test')).to.equal(false);
 			expect(TDD.isValidInput('"stringTest"')).to.equal(false);

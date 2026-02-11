@@ -1,6 +1,6 @@
 import * as path from 'path';
 // import * as process from 'process';
-import { runTests } from 'vscode-test';
+import { runTests } from "@vscode/test-electron";
 
 async function main() {
 	try {
@@ -24,6 +24,7 @@ async function main() {
 
 		// Download minimum VSCode version defined by our package.json, unzip it and run the integration test environment
 		// aside from testing against our package.json claims, it also avoids random vscode installations bloating dev environments
+		console.log(process.env.npm_package_engines_vscode)
 		await runTests({
 			version: process.env.npm_package_engines_vscode.slice(1),
 			platform:

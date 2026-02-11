@@ -10,21 +10,19 @@ import { ILispFragment } from '../astObjects/ILispFragment';
 import { primitiveRegex } from '../astObjects/lispAtom';
 
 
-export function AutoLispExtPrepareRename(document: vscode.TextDocument, position: vscode.Position): { range: vscode.Range; placeholder: string; } 
-{
+export function AutoLispExtPrepareRename(document: vscode.TextDocument, position: vscode.Position): { range: vscode.Range; placeholder: string; } {
 	const roDoc = AutoLispExt.Documents.getDocument(document);
 	let selectedAtom: ILispFragment = SharedAtomic.getNonPrimitiveAtomFromPosition(roDoc, position);
-	if (!selectedAtom){
+	if (!selectedAtom) {
 		return null;
 	}
 	return { range: selectedAtom.getRange(), placeholder: selectedAtom.symbol };
 }
 
 
-export function AutoLispExtProvideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string): vscode.WorkspaceEdit
-{
+export function AutoLispExtProvideRenameEdits(document: vscode.TextDocument, position: vscode.Position, newName: string): vscode.WorkspaceEdit {
 	const roDoc = AutoLispExt.Documents.getDocument(document);
-	const selectedAtom = SharedAtomic.getNonPrimitiveAtomFromPosition(roDoc, position);	
+	const selectedAtom = SharedAtomic.getNonPrimitiveAtomFromPosition(roDoc, position);
 	newName = RenameProviderSupport.normalizeUserProvidedValue(newName, selectedAtom.symbol);
 	if (!newName) {
 		return null;
@@ -37,8 +35,7 @@ export function AutoLispExtProvideRenameEdits(document: vscode.TextDocument, pos
 
 namespace RenameProviderSupport {
 
-	export function provideRenameEditsWorker(roDoc: ReadonlyDocument, selectedAtom: ILispFragment, newName: string): vscode.WorkspaceEdit|null 
-	{
+	export function provideRenameEditsWorker(roDoc: ReadonlyDocument, selectedAtom: ILispFragment, newName: string): vscode.WorkspaceEdit | null {
 		const docSymbols = SymbolManager.getSymbolMap(roDoc);
 		const selectedIndex = selectedAtom.flatIndex;
 		const selectedKey = selectedAtom.symbol.toLowerCase();
@@ -62,7 +59,7 @@ namespace RenameProviderSupport {
 		return editContext;
 	}
 
-	export function normalizeUserProvidedValue(newValue: string, oldValue: string): string|null {
+	export function normalizeUserProvidedValue(newValue: string, oldValue: string): string | null {
 		newValue = newValue.trim();
 		if (newValue.length === 0 || newValue === oldValue || !isValidInput(newValue)) {
 			return null;
@@ -70,17 +67,16 @@ namespace RenameProviderSupport {
 		return newValue;
 	}
 
-	export function getTargetSymbolReference(symbolMap: IRootSymbolHost, key: string, index: number): ISymbolReference|null {
+	export function getTargetSymbolReference(symbolMap: IRootSymbolHost, key: string, index: number): ISymbolReference | null {
 		const symbolArray = symbolMap.collectAllSymbols().get(key);
 		if (!symbolArray && !Array.isArray(symbolArray)) {
 			return null;
 		}
-		const init = symbolArray.find(p => p.asReference?.flatIndex === index);		
+		const init = symbolArray.find(p => p.asReference?.flatIndex === index);
 		return init;
 	}
 
-	export function populateEditsFromDocumentList(editContext: vscode.WorkspaceEdit, newValue: string, key: string, docs: Array<ReadonlyDocument>): void
-	{
+	export function populateEditsFromDocumentList(editContext: vscode.WorkspaceEdit, newValue: string, key: string, docs: Array<ReadonlyDocument>): void {
 		docs.forEach(extDoc => {
 			const externalSymbols = SymbolManager.getSymbolMap(extDoc);
 			const externalItems = getRenameTargetsFromParentScope(extDoc, externalSymbols, key);
@@ -91,7 +87,7 @@ namespace RenameProviderSupport {
 	export function hasGlobalizer(docs: Array<ReadonlyDocument>, key: string): boolean {
 		for (let i = 0; i < docs.length; i++) {
 			const roDoc = docs[i];
-			if(DocumentServices.hasGlobalizedTargetKey(roDoc, key)) {
+			if (DocumentServices.hasGlobalizedTargetKey(roDoc, key)) {
 				return true;
 			}
 		}

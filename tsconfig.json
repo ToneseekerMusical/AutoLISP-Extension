@@ -1,18 +1,15 @@
 {
-	"compilerOptions": {
-		"module": "commonjs",
-		"target": "es2015",
-		"outDir": "out",
-		"rootDir": "extension/src",
-		"lib": [ "es2015", "DOM" ],
-		"sourceMap": true,
-		"alwaysStrict": true
-	},
-	"include": [
-		"extension/src"
-	],
-	"exclude": [
-		"node_modules",
-		".vscode-test"
-	]
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2015",
+    "outDir": "out",
+    "rootDir": "extension/src",
+    "lib": ["es2015", "DOM"],
+    "sourceMap": true,
+    "alwaysStrict": true,
+    "skipDefaultLibCheck": true,
+    "skipLibCheck": true
+  },
+  "include": ["extension/src"],
+  "exclude": ["node_modules", ".vscode-test"]
 }

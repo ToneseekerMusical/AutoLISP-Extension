@@ -1,4 +1,4 @@
-import { rgPath } from 'vscode-ripgrep'
+import { rgPath } from '@vscode/ripgrep'
 import { SearchOption } from './options';
 
 import * as os from 'os';
@@ -42,10 +42,10 @@ export async function findInFile(searchOption: SearchOption, file2Search: string
     }
 
     if (process.platform === 'darwin') {
-        return execa(getRgPathMac(), commandArgs);
+        return execa.$(getRgPathMac(), commandArgs);
     }
 
-    return execa(rgPath, commandArgs);
+    return execa.$(rgPath, commandArgs);
 }
 
 function getRgPathMac(): string {
