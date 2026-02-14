@@ -7,8 +7,7 @@ import * as baseConfig from "@istanbuljs/nyc-config-typescript";
 
 import 'ts-node/register';
 import 'source-map-support/register';
-
-const NYC = require('nyc');
+import * as NYC from 'nyc';
 
 export async function run(): Promise<void> {
 	const reportingDir = path.resolve(__dirname, '../../../coverage');
@@ -44,7 +43,7 @@ export async function run(): Promise<void> {
 }
 
 async function setupNYC() {
-	let nyc = new NYC({
+	const nyc = new NYC({
 		...baseConfig,
 		all: true,
 		cwd: path.join(__dirname, '..', '..', '..'),
@@ -74,7 +73,7 @@ async function reportCodeCoverage(nyc) {
 
 	let textReport = '';
 
-	let currentWrite = process.stdout.write;
+	const currentWrite = process.stdout.write;
 	process.stdout.write = (s) => { textReport = textReport + s; return true; };
 
 	await nyc.report.bind(nyc)();

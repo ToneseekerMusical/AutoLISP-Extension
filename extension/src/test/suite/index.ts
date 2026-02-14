@@ -4,15 +4,15 @@ import { glob } from 'glob';
 export async function run(): Promise<void> {
 	// Create the mocha test
 	const mocha = new Mocha({
-		ui: 'tdd'
+		ui: 'tdd',
+		color: true
 	});
-	mocha.options.color = true;
 
 	const testsRoot = path.resolve(__dirname, '..');
+	const files = await glob('**/*.test.js', { cwd: testsRoot })
 
-	return new Promise(async (c, e) => {
+	return new Promise((c, e) => {
 		try {
-			let files = await glob('**/*.test.js', { cwd: testsRoot })
 			files.forEach(f => mocha.addFile(path.resolve(testsRoot, f)));
 			try {
 				// Run the mocha test
@@ -26,10 +26,8 @@ export async function run(): Promise<void> {
 			} catch (err) {
 				e(err);
 			}
-		} catch {
-			(err) => {
-				return e(err);
-			};
+		} catch (err) {
+			return e(err);
 		}
 
 	});

@@ -30,7 +30,7 @@ export class ProcessPathCache{
 			}
 		});
 		if(!exist){
-			let newPathPid = new ProductProcessPathPid(path, pid);
+			const newPathPid = new ProductProcessPathPid(path, pid);
 			ProcessPathCache.globalProductProcessPathArr.push(newPathPid);
 		}
 	}

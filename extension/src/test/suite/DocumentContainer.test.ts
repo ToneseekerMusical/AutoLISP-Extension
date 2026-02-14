@@ -3,7 +3,7 @@ import { assert, expect } from 'chai';
 
 import { LispParser } from '../../parsing/lispParser';
 import { getDocumentContainer } from '../../parsing/containers';
-import { Sexpression} from '../../astObjects/sexpression';
+import { Sexpression } from '../../astObjects/sexpression';
 import { ReadonlyDocument } from '../../project/readOnlyDocument';
 import { SymbolServices } from '../../services/symbolServices';
 import { LispContainer } from '../../astObjects/lispContainer';
@@ -16,16 +16,16 @@ const commentsFileTest = path.resolve(extRootPath, "./extension/src/test/SourceF
 const largeFileTest = path.resolve(extRootPath, "./extension/src/test/SourceFile/unFormatted10.lsp");
 
 
-suite("Parsing: DocumentContainer Tests", function () {	
+suite("Parsing: DocumentContainer Tests", function () {
 
 	suiteSetup(async () => {
 		// this ensures that generating the ordered native key list isn't part of the performance tests
 		SymbolServices.isNative('command');
 	});
 
-	test("Original atomsForest vs DocumentContainer", function () {	
+	test("Original atomsForest vs DocumentContainer", function () {
 		try {
-			const doc = ReadonlyDocument.open(largeFileTest); 
+			const doc = ReadonlyDocument.open(largeFileTest);
 			const text = doc.fileContent;
 
 			//debugger;
@@ -40,11 +40,11 @@ suite("Parsing: DocumentContainer Tests", function () {
 			const container = getDocumentContainer(text);
 			const v2items = container.atoms.filter(x => x instanceof LispContainer);
 			const v2Stop = Date.now();
-			
+
 			//debugger;
 			const v1Diff = v1Stop - v1Start;
 			const v2Diff = v2Stop - v2Start;
-			
+
 			console.log(`\t\tOldParser Processing Time: ${v1Diff}ms`);
 			console.log(`\t\tNewParser Processing Time: ${v2Diff}ms`);
 
@@ -66,12 +66,12 @@ suite("Parsing: DocumentContainer Tests", function () {
 			//expect(v2Diff).to.be.lessThan(v1Diff);
 		}
 		catch (err) {
-			assert.fail("Returned a different number of Expressions or the newer parser underperformed");
+			assert.fail(`Returned a different number of Expressions or the newer parser underperformed\n${err}`);
 		}
 	});
 
 
-	test("DocumentExpression equals asText() version", function () {		
+	test("DocumentExpression equals asText() version", function () {
 		try {
 			const doc1 = ReadonlyDocument.open(symbolsFileTest);
 			const doc2 = ReadonlyDocument.open(commentsFileTest);
@@ -84,11 +84,11 @@ suite("Parsing: DocumentContainer Tests", function () {
 			assert.equal(doc2.fileContent.trim(), sut.asText().trim());
 		}
 		catch (err) {
-			assert.fail("Did not return the expected (mostly equal) text value when converted back");
+			assert.fail(`Did not return the expected(mostly equal) text value when converted back\n${err}`);
 		}
 	});
 
-	test("DocumentExpression SymbolMap Ids", function () {		
+	test("DocumentExpression SymbolMap Ids", function () {
 		try {
 			const val = '(defun A (/ pt)\n\t(defun b (C) (+ C 1))\n\t(setq pt (getpoint))\n\t(command ".point" pt)\n\t)';
 			const sut = getDocumentContainer(val);
@@ -96,13 +96,13 @@ suite("Parsing: DocumentContainer Tests", function () {
 			assert.equal(sut.userSymbols.get('pt').length, 3);
 		}
 		catch (err) {
-			assert.fail("Did not contain the expected number of keys or indices");
+			assert.fail(`Did not contain the expected number of keys or indices\n${err}`);
 		}
 	});
 
 
 	test("String Source: Test Unix EOLs", function () {
-		try { 
+		try {
 			const val = '(defun C:DoStuff (/ pt)\n\t(setq pt (getpoint))\n\t(command ".point" pt)\n\t)';
 			const sut = getDocumentContainer(val);
 			assert.equal(sut.atoms.length, 1);
@@ -110,12 +110,12 @@ suite("Parsing: DocumentContainer Tests", function () {
 			assert.equal(sut.linefeed, '\n');
 		}
 		catch (err) {
-			assert.fail("Incorrect parse quantity or EOL value");
+			assert.fail(`Incorrect parse quantity or EOL value\n${err}`);
 		}
 	});
 
 	test("String Source: Test Windows EOLs", function () {
-		try { 
+		try {
 			const val = '(defun C:DoStuff (/ pt)\r\n\t(setq pt (getpoint))\r\n\t(command ".point" pt)\r\n\t)';
 			const sut = getDocumentContainer(val);
 			assert.equal(sut.atoms.length, 1);
@@ -123,10 +123,10 @@ suite("Parsing: DocumentContainer Tests", function () {
 			assert.equal(sut.linefeed, '\r\n');
 		}
 		catch (err) {
-			assert.fail("Incorrect parse quantity or EOL value");
+			assert.fail(`Incorrect parse quantity or EOL value\n${err}`);
 		}
 	});
 
-	
+
 
 });

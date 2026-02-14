@@ -7,20 +7,20 @@ import { Position } from 'vscode';
 import { DclAttribute } from '../../astObjects/dclAttribute';
 import { DclAtom } from '../../astObjects/dclAtom';
 
-suite("AST Objects: DCL Tile", function () {	
+suite("AST Objects: DCL Tile", function () {
 
-	let doc: ReadonlyDocument;	
+	let doc: ReadonlyDocument;
 	suiteSetup(async () => {
 		const extRootPath = path.resolve(__dirname, '../../../');
 		const dclPath = path.resolve(extRootPath, "./extension/src/test/SourceFile/renaming/dialog.dcl");
-		doc = ReadonlyDocument.open(dclPath); 
+		doc = ReadonlyDocument.open(dclPath);
 	});
 
 
 	// Note: these tests indirectly, but also properly cover range, contains, length, firstAtom & lastAtom
 
 
-	test("DclTile.flatten() Quantities", function () {	
+	test("DclTile.flatten() Quantities", function () {
 		try {
 			const sut = doc.documentDclContainer;
 			expect(sut.atoms[2].asTile.flatten().length).to.equal(237);
@@ -28,7 +28,7 @@ suite("AST Objects: DCL Tile", function () {
 			expect(sut.flatten().length).to.equal(316);
 		}
 		catch (err) {
-			assert.fail("The root or an immediate Tile did not flatten to expected quantities");
+			assert.fail(`The root or an immediate Tile did not flatten to expected quantities ${err}`);
 		}
 	});
 
@@ -37,7 +37,7 @@ suite("AST Objects: DCL Tile", function () {
 		try {
 			const sut = (line: number, column: number): string => {
 				return doc.documentDclContainer.getAtomFromPosition(new Position(line, column)).symbol;
-			   };
+			};
 
 			expect(sut(0, 0)).to.equal('/*\r\nthis is a block\r\ncomment\r\n*/');
 			expect(sut(3, 10)).to.equal('// line comment on block tail');
@@ -47,7 +47,7 @@ suite("AST Objects: DCL Tile", function () {
 			expect(sut(31, 16)).to.equal('//boxed row');
 		}
 		catch (err) {
-			assert.fail("A known atom position did not return the expected string value");
+			assert.fail(`A known atom position did not return the expected string value ${err}`);
 		}
 	});
 
@@ -58,7 +58,7 @@ suite("AST Objects: DCL Tile", function () {
 			const sut = (getLine: number, getColumn: number, expectLine: number, expectColumn: number): boolean => {
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), true);
 				return frag === null ? false : frag.line === expectLine && frag.column === expectColumn;
-			   };
+			};
 			expect(sut(4, 0, 0, 0)).to.equal(true); // expect DocumentContainer
 			expect(sut(3, 22, 0, 0)).to.equal(true);
 			expect(sut(31, 16, 5, 0)).to.equal(true);
@@ -68,16 +68,16 @@ suite("AST Objects: DCL Tile", function () {
 			expect(sut(42, 50, 42, 8)).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known atom position did not return the expected parent position");
+			assert.fail(`A known atom position did not return the expected parent position ${err}`);
 		}
 	});
-	
+
 	test("DclTile.getParentFrom() TilesOnly == False", function () {
 		try {
 			const sut = (getLine: number, getColumn: number, expectLine: number, expectColumn: number): boolean => {
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), false);
 				return frag === null ? false : frag.line === expectLine && frag.column === expectColumn;
-			   };
+			};
 			expect(sut(4, 0, 0, 0)).to.equal(true);  // expect DocumentContainer
 			expect(sut(3, 22, 0, 0)).to.equal(true);
 			expect(sut(31, 16, 5, 0)).to.equal(true);
@@ -87,7 +87,7 @@ suite("AST Objects: DCL Tile", function () {
 			expect(sut(42, 50, 42, 38)).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known atom position did not return the expected parent position");
+			assert.fail(`A known atom position did not return the expected parent position ${err}`);
 		}
 	});
 
@@ -97,10 +97,10 @@ suite("AST Objects: DCL Tile", function () {
 			const sut = (getLine: number, getColumn: number, getTile: boolean): IDclFragment => {
 				// comments cannot exist in tiles, so results should always be atom 0 when getParentFrom(false) returns an attribute
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
-				const container: DclTile|DclAttribute = frag.asAttribute ?? frag.asTile;
+				const container: DclTile | DclAttribute = frag.asAttribute ?? frag.asTile;
 				const result = container.firstNonComment;
 				return result;
-			   };
+			};
 			expect(sut(0, 1, true)).to.equal(null); // Root should be null since it only contains comments & containers
 			expect(sut(6, 12, true).symbol).to.equal('ALE_Dialog1');
 			expect(sut(17, 45, true).symbol).to.equal(':');
@@ -110,7 +110,7 @@ suite("AST Objects: DCL Tile", function () {
 			expect(sut(43, 23, false).symbol).to.equal('width');
 		}
 		catch (err) {
-			assert.fail("The expected container and/or string was not return by the test method");
+			assert.fail(`The expected container and/or string was not return by the test method ${err}`);
 		}
 	});
 
@@ -120,14 +120,14 @@ suite("AST Objects: DCL Tile", function () {
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
 				const result = frag.asTile.openBracketAtom;
 				return result;
-			   };
+			};
 			expect(sut(0, 1, true)).to.equal(null); // Root should be null since it only contains comments & containers
 			expect(sut(6, 12, true).symbol).to.equal('{');
 			expect(sut(17, 45, true).symbol).to.equal('{');
 			expect(sut(36, 22, true).symbol).to.equal('{');
 		}
 		catch (err) {
-			assert.fail("The expected container and/or string was not return by the test method");
+			assert.fail(`The expected container and/or string was not return by the test method ${err}`);
 		}
 	});
 
@@ -137,14 +137,14 @@ suite("AST Objects: DCL Tile", function () {
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
 				const result = frag.asTile.closeBracketAtom;
 				return result;
-			   };
+			};
 			expect(sut(0, 1, true)).to.equal(null); // Root should be null since it only contains comments & containers
 			expect(sut(6, 12, true).symbol).to.equal('}');
 			expect(sut(17, 45, true).symbol).to.equal('}');
 			expect(sut(36, 22, true).symbol).to.equal('}');
 		}
 		catch (err) {
-			assert.fail("The expected container and/or string was not return by the test method");
+			assert.fail(`The expected container and/or string was not return by the test method ${err}`);
 		}
 	});
 
@@ -155,24 +155,24 @@ suite("AST Objects: DCL Tile", function () {
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
 				const result = frag.asTile.dialogNameAtom;
 				return result;
-			   };
+			};
 			expect(sut(0, 1, true)).to.equal(null); // Root should be null since it only contains comments & containers
 			expect(sut(6, 12, true).symbol).to.equal('ALE_Dialog1');
 			expect(sut(17, 45, true)).to.equal(null);
 			expect(sut(36, 22, true).symbol).to.equal('ALE_Dialog2');
 		}
 		catch (err) {
-			assert.fail("The expected container and/or string was not return by the test method");
+			assert.fail(`The expected container and/or string was not return by the test method ${err}`);
 		}
 	});
-	
+
 	test("DclTile.tileTypeAtom Property", function () {
 		try {
 			const sut = (getLine: number, getColumn: number, getTile: boolean): IDclFragment => {
 				const frag = doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
 				const result = frag.asTile.tileTypeAtom;
 				return result;
-			   };
+			};
 			expect(sut(0, 1, true)).to.equal(null); // Root should be null since it only contains comments & containers
 			expect(sut(6, 12, true).symbol).to.equal('dialog');
 			expect(sut(17, 45, true).symbol).to.equal('toggle');
@@ -180,16 +180,16 @@ suite("AST Objects: DCL Tile", function () {
 			expect(sut(39, 27, true).symbol).to.equal('edit_box');
 		}
 		catch (err) {
-			assert.fail("The expected container and/or string was not return by the test method");
+			assert.fail(`The expected container and/or string was not return by the test method ${err}`);
 		}
 	});
-	
-	
+
+
 	test("DclTile Misc IDclFragment Obligations", function () {
 		try {
 			const sut = (getLine: number, getColumn: number, getTile: boolean): IDclContainer => {
 				return doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
-			   };
+			};
 			const tile1 = sut(6, 12, true);
 			const tile2 = sut(17, 45, true);
 			expect(tile1.isComment).to.equal(false);
@@ -200,7 +200,7 @@ suite("AST Objects: DCL Tile", function () {
 			expect(tile2.isString).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("The expected container and/or value was not return by the test method");
+			assert.fail(`The expected container and/or value was not return by the test method ${err}`);
 		}
 	});
 
@@ -208,7 +208,7 @@ suite("AST Objects: DCL Tile", function () {
 		try {
 			const sut = (getLine: number, getColumn: number, getTile: boolean): IDclContainer => {
 				return doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), getTile);
-			   };
+			};
 			const realTile = sut(18, 20, true);
 			let realIndex = realTile.firstAtom.flatIndex;
 			const mockTile = new DclTile('\r\n', [
@@ -225,14 +225,15 @@ suite("AST Objects: DCL Tile", function () {
 			]);
 
 			expect(realTile.equal(mockTile)).to.equal(true);
+			/*Any type is required for test to function*/ //eslint-disable-next-line
 			(mockTile.atoms[1] as any)['symbol'] = 'spacex';
 			expect(realTile.equal(mockTile)).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("The mock failed to equal or continued to equal the known tile before or after alterations");
+			assert.fail(`The mock failed to equal or continued to equal the known tile before or after alterations ${err}`);
 		}
 	});
 
-	
+
 
 });

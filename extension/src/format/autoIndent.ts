@@ -36,17 +36,17 @@ class BasicSemantics {
 
 	static parse(exprInfo: ElementRange, document: vscode.TextDocument): BasicSemantics {
 		//parse plain text
-		let startPos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
-		let endPos2d = document.positionAt(exprInfo.endPos.offsetInDocument + 1);
+		const startPos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
+		const endPos2d = document.positionAt(exprInfo.endPos.offsetInDocument + 1);
 
-		let sexpr = document.getText(new vscode.Range(startPos2d, endPos2d));
+		const sexpr = document.getText(new vscode.Range(startPos2d, endPos2d));
 
-		let readerStartPos = new CursorPosition();
+		const readerStartPos = new CursorPosition();
 		readerStartPos.offsetInSelection = 0; //the start position in sexpr is 0
 		readerStartPos.offsetInDocument = exprInfo.startPos.offsetInDocument; //the start position in doc
-		let reader = new format.ListReader(sexpr, readerStartPos, document);
+		const reader = new format.ListReader(sexpr, readerStartPos, document);
 
-		let lispLists = reader.tokenize();
+		const lispLists = reader.tokenize();
 
 		if ((lispLists == null) || (lispLists.atoms == null) || (lispLists.atoms.length == 0))
 			return null;
@@ -74,7 +74,7 @@ class BasicSemantics {
 		if ((operator == null) || (operator.symbol == null) || (operator.symbol == ""))
 			return null;
 
-		let ret = new BasicSemantics();
+		const ret = new BasicSemantics();
 		ret.operator = operator;
 		ret.operatorLowerCase = operator.symbol.toLowerCase();
 		ret.leftParenPos = startPos2d;
@@ -94,7 +94,7 @@ class BasicSemantics {
 }
 
 function getTabSize(): number {
-	let editor = vscode.window.activeTextEditor;
+	const editor = vscode.window.activeTextEditor;
 
 	if (editor)
 		return <number>editor.options.tabSize;
@@ -103,14 +103,14 @@ function getTabSize(): number {
 }
 
 function character2Column(charPosInLine: number, line: number, document: TextDocument): number {
-	let tabsize = getTabSize();
+	const tabsize = getTabSize();
 
 	if (line >= document.lineCount) {
 		console.log("invalid line number;\n");
 		return charPosInLine;
 	}
 
-	let lineText = document.lineAt(line).text;
+	const lineText = document.lineAt(line).text;
 
 	let column = 0;
 	for (let i = 0; i < charPosInLine; i++) {
@@ -124,20 +124,20 @@ function character2Column(charPosInLine: number, line: number, document: TextDoc
 }
 
 function getNumber_Lambda(document: TextDocument, cursorPos2d: Position, semantics: BasicSemantics): number {
-	let operator = semantics.operator;
+	const operator = semantics.operator;
 	if (operator == null) return -1;
 
 	if (semantics.operatorLowerCase != "lambda")
 		return -1;
 
-	let column = character2Column(operator.column, operator.line, document);
+	const column = character2Column(operator.column, operator.line, document);
 
 	if (semantics.operands.length == 0) {
 		//assuming user is adding argument list, which should align after "lambda "
 		return column + operator.symbol.length + 1;
 	}
 
-	let argList = semantics.operands[0];
+	const argList = semantics.operands[0];
 	if (isPosBetween(cursorPos2d, operator.line, operator.column, argList.line, argList.column)) {
 		//it's after the start of function name and before the argument list
 		//align with function name
@@ -148,7 +148,7 @@ function getNumber_Lambda(document: TextDocument, cursorPos2d: Position, semanti
 }
 
 function getNumber_Defun(document: TextDocument, cursorPos2d: Position, semantics: BasicSemantics): number {
-	let operator = semantics.operator;
+	const operator = semantics.operator;
 	if (operator == null) return -1;
 
 	if ((semantics.operatorLowerCase != "defun") &&
@@ -156,16 +156,16 @@ function getNumber_Defun(document: TextDocument, cursorPos2d: Position, semantic
 		return -1;
 
 	if (semantics.operands.length == 0) {
-		let column = character2Column(operator.column, operator.line, document);
+		const column = character2Column(operator.column, operator.line, document);
 
 		//assuming user is adding function name, which should be after, e.g., "defun "
 		return column + operator.symbol.length + 1;
 	}
 
-	let funName = semantics.operands[0];
+	const funName = semantics.operands[0];
 
 	if (isPosBetween(cursorPos2d, operator.line, operator.column, funName.line, funName.column)) {
-		let column = character2Column(operator.column, operator.line, document);
+		const column = character2Column(operator.column, operator.line, document);
 
 		//cursor is after the start of defun, and before the function name
 		//1 column after the end of operator
@@ -173,16 +173,16 @@ function getNumber_Defun(document: TextDocument, cursorPos2d: Position, semantic
 	}
 
 	if (semantics.operands.length == 1) {
-		let column = character2Column(funName.column, funName.line, document);
+		const column = character2Column(funName.column, funName.line, document);
 
 		//it's after the start of function name; argument list missing
 		//assume user is adding argument list, which should align with function name
 		return column;
 	}
 
-	let argList = semantics.operands[1];
+	const argList = semantics.operands[1];
 	if (isPosBetween(cursorPos2d, funName.line, funName.column, argList.line, argList.column)) {
-		let column = character2Column(funName.column, funName.line, document);
+		const column = character2Column(funName.column, funName.line, document);
 
 		//it's after the start of function name and before the argument list
 		//align with function name
@@ -193,10 +193,10 @@ function getNumber_Defun(document: TextDocument, cursorPos2d: Position, semantic
 }
 
 function getNumber_Defun_ArgList(document: vscode.TextDocument, exprInfo: ElementRange, parentParenExpr: ElementRange): number {
-	let parentSemantics = BasicSemantics.parse(parentParenExpr, document);
+	const parentSemantics = BasicSemantics.parse(parentParenExpr, document);
 	if (parentSemantics == null) return -1;
 
-	let parentOperator = parentSemantics.operator;
+	const parentOperator = parentSemantics.operator;
 	if (parentOperator == null) return -1;
 
 	if ((parentSemantics.operatorLowerCase != "defun") &&
@@ -204,20 +204,20 @@ function getNumber_Defun_ArgList(document: vscode.TextDocument, exprInfo: Elemen
 		(parentSemantics.operatorLowerCase != "lambda"))
 		return -1;
 
-	let directChildren = parentSemantics.operands;
+	const directChildren = parentSemantics.operands;
 
 	//find the starting ( of argument list
 	for (let i = 0; i < directChildren.length; i++) {
 		if ((directChildren[i] instanceof Sexpression) == false)
 			continue;
 
-		let subLists = <Sexpression>directChildren[i];
+		const subLists = <Sexpression>directChildren[i];
 		for (let j = 0; j < subLists.atoms.length; j++) {
 			if (subLists.atoms[j].isLeftParen() == false)
 				continue;
 
 			//found it
-			let pos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
+			const pos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
 			if (pos2d.line != directChildren[i].line)
 				return -1;
 
@@ -226,7 +226,7 @@ function getNumber_Defun_ArgList(document: vscode.TextDocument, exprInfo: Elemen
 
 			//now the exprInfo represents the range of ([argument list]) of defun
 
-			let column = character2Column(directChildren[i].column, directChildren[i].line, document);
+			const column = character2Column(directChildren[i].column, directChildren[i].line, document);
 
 			return column + 1;//horizontally right after the ( of argument list
 		}
@@ -274,7 +274,7 @@ function getIdentationForWideFormatStyle(document: TextDocument, cursorPos2d: Po
 
 	//if it's after the first operand, align with it
 	if (isPosAfter(cursorPos2d, semantics.operands[0].line, semantics.operands[0].column)) {
-		let column = character2Column(semantics.operands[0].column, semantics.operands[0].line, document);
+		const column = character2Column(semantics.operands[0].column, semantics.operands[0].line, document);
 
 		return column;
 	}
@@ -292,8 +292,8 @@ function getNumber_SetQ(document: TextDocument, cursorPos2d: Position, semantics
 	//add a new atom here
 	for (let i = 0; i < semantics.operands.length - 1; i++) {
 		//check if it's between the beginnings of operand[i] and operand[i+1]
-		let operand1 = semantics.operands[i];
-		let operand2 = semantics.operands[i + 1];
+		const operand1 = semantics.operands[i];
+		const operand2 = semantics.operands[i + 1];
 		if (isPosBetween(cursorPos2d, operand1.line, operand1.column, operand2.line, operand2.column) == false)
 			continue;
 
@@ -303,7 +303,7 @@ function getNumber_SetQ(document: TextDocument, cursorPos2d: Position, semantics
 
 	if (operandNumBeforePos == -1) {
 		//check if it's after the beginning of last operand
-		let lastOperand = semantics.operands[semantics.operands.length - 1];
+		const lastOperand = semantics.operands[semantics.operands.length - 1];
 
 		if (isPosAfter(cursorPos2d, lastOperand.line, lastOperand.column))
 			operandNumBeforePos = semantics.operands.length;
@@ -313,7 +313,7 @@ function getNumber_SetQ(document: TextDocument, cursorPos2d: Position, semantics
 		return -1;
 
 
-	let firstOperandStartColumn = character2Column(semantics.operands[0].column, semantics.operands[0].line, document);
+	const firstOperandStartColumn = character2Column(semantics.operands[0].column, semantics.operands[0].line, document);
 
 	if ((operandNumBeforePos % 2) == 0) {
 		//it's a variable
@@ -328,20 +328,20 @@ function getNumber_SetQ(document: TextDocument, cursorPos2d: Position, semantics
 function getWhiteSpaceNumber(document: TextDocument, exprInfo: ElementRange, parentParenExpr: ElementRange,
 	cursorPos2d: Position): number {
 	if (parentParenExpr != null) {
-		let num = getNumber_Defun_ArgList(document, exprInfo, parentParenExpr);
+		const num = getNumber_Defun_ArgList(document, exprInfo, parentParenExpr);
 		if (num >= 0)
 			return num;
 	}
 
-	let semantics = BasicSemantics.parse(exprInfo, document);
+	const semantics = BasicSemantics.parse(exprInfo, document);
 
-	let operator: LispAtom = (semantics != null) ? semantics.operator : null;
+	const operator: LispAtom = (semantics != null) ? semantics.operator : null;
 
 	if ((operator == null) || (operator.symbol == null)) {
 		//align right after the beginning ( if there's no operator at all; 
-		let startPos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
+		const startPos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
 
-		let column = character2Column(startPos2d.character, startPos2d.line, document);
+		const column = character2Column(startPos2d.character, startPos2d.line, document);
 		return column + 1;
 	}
 
@@ -349,9 +349,9 @@ function getWhiteSpaceNumber(document: TextDocument, exprInfo: ElementRange, par
 		//align right after the beginning ( if:
 		//1) the beginning ( is after operator ' and
 		//2) the operator of () is not lambda
-		let startPos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
+		const startPos2d = document.positionAt(exprInfo.startPos.offsetInDocument);
 
-		let column = character2Column(startPos2d.character, startPos2d.line, document);
+		const column = character2Column(startPos2d.character, startPos2d.line, document);
 		return column + 1;
 	}
 
@@ -359,12 +359,12 @@ function getWhiteSpaceNumber(document: TextDocument, exprInfo: ElementRange, par
 		//first atom is a string or after '
 		//just align with it
 
-		let column = character2Column(operator.column, operator.line, document);
+		const column = character2Column(operator.column, operator.line, document);
 		return column;
 	}
 
-	let leftParenCol = character2Column(semantics.leftParenPos.character, semantics.leftParenPos.line, document);
-	let endPos2d = document.positionAt(exprInfo.endPos.offsetInDocument + 1);
+	const leftParenCol = character2Column(semantics.leftParenPos.character, semantics.leftParenPos.line, document);
+	const endPos2d = document.positionAt(exprInfo.endPos.offsetInDocument + 1);
 	if (cursorPos2d.line == endPos2d.line) {
 		let textBehindCursor = document.getText(new vscode.Range(cursorPos2d, endPos2d));
 		textBehindCursor = textBehindCursor.trim();
@@ -403,17 +403,19 @@ function getWhiteSpaceNumber(document: TextDocument, exprInfo: ElementRange, par
 			return indentationForNarrowStyle() + semantics.leftParenPos.character;
 
 		default:
-			let sexpr = new Sexpression();
-			let atoms = new Array<LispAtom | Sexpression>();
-			atoms = atoms.concat(semantics.operator);
-			atoms = atoms.concat(semantics.operands);
-			sexpr.setAtoms(atoms);
+			(() => {
+				const sexpr = new Sexpression();
+				let atoms = new Array<LispAtom | Sexpression>();
+				atoms = atoms.concat(semantics.operator);
+				atoms = atoms.concat(semantics.operands);
+				sexpr.setAtoms(atoms);
 
-			if (sexpr.shouldFormatWideStyle(cursorPos2d.character)) {
-				charCol = getIdentationForWideFormatStyle(document, cursorPos2d, semantics);
-				if (charCol >= 0)
-					return charCol;
-			}
+				if (sexpr.shouldFormatWideStyle(cursorPos2d.character)) {
+					charCol = getIdentationForWideFormatStyle(document, cursorPos2d, semantics);
+					if (charCol >= 0)
+						return charCol;
+				}
+			})();
 			break;
 	}
 
@@ -424,24 +426,24 @@ function getWhiteSpaceNumber(document: TextDocument, exprInfo: ElementRange, par
 }
 
 function getIndentationInBlockComment(document: vscode.TextDocument, commentRange: ElementRange, cursorNewPos2d: Position): string {
-	let startPos2d = document.positionAt(commentRange.startPos.offsetInDocument);
+	const startPos2d = document.positionAt(commentRange.startPos.offsetInDocument);
 
 	let indentNum = startPos2d.character + 2;//default alignment: horizontally after ;|
 
 	//now, check if the block comment has multiple lines; if true, and the old cursor pos is not on the first line,
 	//the new line should align with the old line
-	let cursorOldLine = cursorNewPos2d.line - 1;
+	const cursorOldLine = cursorNewPos2d.line - 1;
 	if (cursorOldLine > startPos2d.line) {
-		let textLastLine = document.lineAt(cursorOldLine).text;
-		let trimmedText = textLastLine.trimStart();
+		const textLastLine = document.lineAt(cursorOldLine).text;
+		const trimmedText = textLastLine.trimStart();
 		indentNum = textLastLine.length - trimmedText.length;
 	}
 	else if (cursorOldLine == startPos2d.line) {
 		let textLastLine = document.lineAt(cursorOldLine).text;
-		let charNumBeforeRealComment = startPos2d.character + 2;
+		const charNumBeforeRealComment = startPos2d.character + 2;
 		textLastLine = textLastLine.substring(charNumBeforeRealComment);
 
-		let trimmedText = textLastLine.trimStart();
+		const trimmedText = textLastLine.trimStart();
 		indentNum = charNumBeforeRealComment + textLastLine.length - trimmedText.length;
 	}
 
@@ -456,7 +458,7 @@ export function getIndentation(document: TextDocument, containerInfo: ContainerE
 	if (containerInfo.containerBlockComment != null)
 		return getIndentationInBlockComment(document, containerInfo.containerBlockComment, cursorPos2d);
 
-	let exprInfoArray: ElementRange[] = containerInfo.containerParens;
+	const exprInfoArray: ElementRange[] = containerInfo.containerParens;
 	if ((exprInfoArray == null) || (exprInfoArray.length == 0))
 		return ""; //no identation for top level text
 
@@ -464,7 +466,7 @@ export function getIndentation(document: TextDocument, containerInfo: ContainerE
 	if (exprInfoArray.length > 1)
 		parentParenExpr = exprInfoArray[1];
 
-	let num = getWhiteSpaceNumber(document, exprInfoArray[0], parentParenExpr, cursorPos2d);
+	const num = getWhiteSpaceNumber(document, exprInfoArray[0], parentParenExpr, cursorPos2d);
 	if (num == -1) {
 		console.log("failed to parse paren expression.\n");
 		return "";
@@ -484,11 +486,11 @@ function createContainerBlockCommentInfo(commentStartPos: CursorPosition, nextPo
 
 	if (nextPos2Scan == null) {
 		//the block comment is not finished; the whole rest doc after ;| is inside the comment
-		let endPos = new CursorPosition();
+		const endPos = new CursorPosition();
 		endPos.offsetInDocument = docText.length;
 		endPos.offsetInSelection = docText.length - commentStartPos.delta();
 
-		let coverBlockComment = new ElementRange();
+		const coverBlockComment = new ElementRange();
 		coverBlockComment.startPos = commentStartPos;
 		coverBlockComment.endPos = endPos;
 
@@ -498,15 +500,15 @@ function createContainerBlockCommentInfo(commentStartPos: CursorPosition, nextPo
 	if (cursorPos > nextPos2Scan.offsetInDocument)
 		return null;//nextPos2Scan if after the end of comment; it's just a rough check to quickly exclude most impossible cases
 
-	let commentStartPos2d = document.positionAt(commentStartPos.offsetInDocument);
-	let commentEndPos2d = document.positionAt(nextPos2Scan.offsetInDocument);
-	let commentText = document.getText(new vscode.Range(commentStartPos2d, commentEndPos2d));
+	const commentStartPos2d = document.positionAt(commentStartPos.offsetInDocument);
+	const commentEndPos2d = document.positionAt(nextPos2Scan.offsetInDocument);
+	const commentText = document.getText(new vscode.Range(commentStartPos2d, commentEndPos2d));
 
 	if (commentText.endsWith("|;") == false)
 		console.log("unexpected end of a block comment");
 
 	if (cursorPos <= (commentStartPos.offsetInDocument + commentText.length - 2)) {
-		let coverBlockComment = new ElementRange();
+		const coverBlockComment = new ElementRange();
 		coverBlockComment.startPos = commentStartPos;
 		coverBlockComment.endPos = nextPos2Scan;
 
@@ -520,19 +522,19 @@ function createContainerBlockCommentInfo(commentStartPos: CursorPosition, nextPo
 
 
 export function findContainers(document: vscode.TextDocument, cursorPos2d: Position): ContainerElements {
-	let docAsString = document.getText();
-	let cursorPos = document.offsetAt(cursorPos2d);
+	const docAsString = document.getText();
+	const cursorPos = document.offsetAt(cursorPos2d);
 
-	let docStringLength = docAsString.length;
+	const docStringLength = docAsString.length;
 
-	let parenPairs = new Array<ElementRange>();//temp array to find ( ... ) expression
-	let coverParenPairs = new Array<ElementRange>(); //( ... ) expressions that are ancestors of current position
+	const parenPairs = new Array<ElementRange>();//temp array to find ( ... ) expression
+	const coverParenPairs = new Array<ElementRange>(); //( ... ) expressions that are ancestors of current position
 	let coverBlockComment: ElementRange = null;
 
 	let isPrevCharQuote = false;//inside operator '
 	for (let pos = 0; pos < docStringLength; /*startPosInString++*/) {
-		let char = docAsString.charAt(pos);
-		let nextChar = (pos < (docStringLength - 1)) ? docAsString.charAt(pos + 1) : null;
+		const char = docAsString.charAt(pos);
+		const nextChar = (pos < (docStringLength - 1)) ? docAsString.charAt(pos + 1) : null;
 
 		if ((pos > cursorPos) && (parenPairs.length == 0)) {
 			//it's behind the given position, and there's no closing ) to look for;
@@ -542,9 +544,9 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 
 		//highest priority
 		if (char == ';') {
-			let commentStartPos = format.CursorPosition.create(pos, pos);
+			const commentStartPos = format.CursorPosition.create(pos, pos);
 
-			let nextPos2Scan = format.ListReader.findEndOfComment(document, docAsString, commentStartPos);
+			const nextPos2Scan = format.ListReader.findEndOfComment(document, docAsString, commentStartPos);
 
 			if ((nextChar == '|') && (coverBlockComment == null)) {
 				//check if cursor is in this block comment, and if true, create an ElementRange to keep this information
@@ -564,9 +566,9 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 		if (char == '"') {
 			isPrevCharQuote = false;
 
-			let stringStartPos = format.CursorPosition.create(pos, pos);
+			const stringStartPos = format.CursorPosition.create(pos, pos);
 
-			let nextPos2Scan = format.ListReader.findEndOfDoubleQuoteString(document, docAsString, stringStartPos);
+			const nextPos2Scan = format.ListReader.findEndOfDoubleQuoteString(document, docAsString, stringStartPos);
 
 			if (nextPos2Scan == null) //doc ended or not found
 				break;
@@ -591,7 +593,7 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 		//getting here means you're in neither comment nor string with double quotes
 
 		if (char == '(') {
-			let anExpr = new ElementRange();
+			const anExpr = new ElementRange();
 			anExpr.quoted = curCharQuoted;
 			anExpr.startPos = format.CursorPosition.create(pos, pos);
 			parenPairs.push(anExpr);
@@ -607,7 +609,7 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 				continue;
 			}
 
-			let parenExpr = parenPairs.pop();
+			const parenExpr = parenPairs.pop();
 			parenExpr.endPos = format.CursorPosition.create(pos, pos);
 
 			//now check if it covers current position
@@ -629,7 +631,7 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 		if (parenPairs.length == 0)
 			break;
 
-		let expr = parenPairs.pop();
+		const expr = parenPairs.pop();
 		if (expr.endPos != null)
 			continue;
 
@@ -638,7 +640,7 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 		coverParenPairs.push(expr);
 	}
 
-	let containerInfo = new ContainerElements();
+	const containerInfo = new ContainerElements();
 	containerInfo.containerParens = coverParenPairs;
 	containerInfo.containerBlockComment = coverBlockComment;
 
@@ -647,25 +649,25 @@ export function findContainers(document: vscode.TextDocument, cursorPos2d: Posit
 
 export function isCursorInDoubleQuoteExpr(document: vscode.TextDocument, position: vscode.Position): boolean {
 	try {
-		var syntaxContainers = findContainers(document, position);
-		var firstLevelContainer = syntaxContainers.containerParens.pop();
+		const syntaxContainers = findContainers(document, position);
+		const firstLevelContainer = syntaxContainers.containerParens.pop();
 
-		let startPos2d = document.positionAt(firstLevelContainer.startPos.offsetInDocument);
-		let endPos2d = document.positionAt(firstLevelContainer.endPos.offsetInDocument + 1);
+		const startPos2d = document.positionAt(firstLevelContainer.startPos.offsetInDocument);
+		const endPos2d = document.positionAt(firstLevelContainer.endPos.offsetInDocument + 1);
 
-		let sexpr = document.getText(new vscode.Range(startPos2d, endPos2d));
+		const sexpr = document.getText(new vscode.Range(startPos2d, endPos2d));
 
-		let readerStartPos = new CursorPosition();
+		const readerStartPos = new CursorPosition();
 		readerStartPos.offsetInSelection = 0; //the start position in sexpr is 0
 		readerStartPos.offsetInDocument = firstLevelContainer.startPos.offsetInDocument; //the start position in doc
-		let reader = new format.ListReader(sexpr, readerStartPos, document);
+		const reader = new format.ListReader(sexpr, readerStartPos, document);
 
-		let lispLists = reader.tokenize();
-		var atomAtCursor = lispLists.getAtomFromPos(position);
+		const lispLists = reader.tokenize();
+		const atomAtCursor = lispLists.getAtomFromPos(position);
 		if (atomAtCursor != null && atomAtCursor.symbol.startsWith("\""))
 			return true;
 	} catch (err) {
-
+		console.log(err);
 	}
 
 	return false;
@@ -679,27 +681,27 @@ export function subscribeOnEnterEvent() {
 				if (ch != '\n')
 					return [];
 
-				let edits = new Array<TextEdit>();
+				const edits = new Array<TextEdit>();
 
 				try {
 					//step 1: work out the indentation and fill white spaces in the new line
 					//step 1.1, search for all parentheses that contain current posistion
-					let containerInfo = findContainers(document, position2d);
+					const containerInfo = findContainers(document, position2d);
 
 					//step 1.2, work out the correctly indented text string of the given line
-					let lineOldText = document.lineAt(position2d.line).text;
-					let lineNoLeftPadding = lineOldText.trimStart();
-					let leftblanks = lineOldText.length - lineNoLeftPadding.length;
-					let leftblanksPos = new vscode.Position(position2d.line, leftblanks);
+					const lineOldText = document.lineAt(position2d.line).text;
+					const lineNoLeftPadding = lineOldText.trimStart();
+					const leftblanks = lineOldText.length - lineNoLeftPadding.length;
+					const leftblanksPos = new vscode.Position(position2d.line, leftblanks);
 
-					let lineIndentation = getIndentation(document, containerInfo, position2d);
-					let lineStartPos2d = new vscode.Position(position2d.line, 0);
+					const lineIndentation = getIndentation(document, containerInfo, position2d);
+					const lineStartPos2d = new vscode.Position(position2d.line, 0);
 
 					edits.push(TextEdit.delete(new vscode.Range(lineStartPos2d, leftblanksPos)));
 					edits.push(TextEdit.insert(lineStartPos2d, lineIndentation));
 
 				} catch (err) {
-					vscode.window.showInformationMessage("It met some errors to compute the identation.");
+					vscode.window.showInformationMessage(`It met some errors to compute the identation.\n${err}`);
 				}
 
 				return edits;

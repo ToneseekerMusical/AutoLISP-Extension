@@ -10,24 +10,24 @@ const extRootPath = path.resolve(__dirname, '../../../');
 const dclPath = path.resolve(extRootPath, "./extension/src/test/SourceFile/renaming/dialog.dcl");
 
 
-suite("Parsing: DCL Content", function () {	
+suite("Parsing: DCL Content", function () {
 
-	let doc: ReadonlyDocument;	
+	let doc: ReadonlyDocument;
 	suiteSetup(async () => {
-		doc = ReadonlyDocument.open(dclPath); 
+		doc = ReadonlyDocument.open(dclPath);
 	});
 
-	test("DclParser - getDocumentTileContainer()", function () {	
+	test("DclParser - getDocumentTileContainer()", function () {
 		try {
 			const start = Date.now();
 			const tile = getDocumentTileContainer(doc.fileContent);
 			const stop = Date.now();
 			const text = tile.asText();
 			const conversion = Date.now();
-			
+
 			const diff1 = stop - start;
 			const diff2 = conversion - stop;
-			
+
 			console.log(`\t\tDCL Parsing Time: ${diff1}ms`);
 			console.log(`\t\tDCL Convert Back: ${diff2}ms`);
 
@@ -35,11 +35,11 @@ suite("Parsing: DCL Content", function () {
 			expect(doc.fileContent).to.equal(text);
 		}
 		catch (err) {
-			assert.fail("The original parsed content did not convert back to the same text");
+			assert.fail(`The original parsed content did not convert back to the same text\n${err}`);
 		}
 	});
 
-	test("DCL Root Container Contents", function () {	
+	test("DCL Root Container Contents", function () {
 		try {
 			const tile = doc.documentDclContainer;
 			expect(tile.length).to.equal(4);
@@ -56,7 +56,7 @@ suite("Parsing: DCL Content", function () {
 			expect(tile.atoms[0].symbol.split('\n').length).to.equal(4);
 		}
 		catch (err) {
-			assert.fail("The parsed content did not contain the expected root values");
+			assert.fail(`The parsed content did not contain the expected root value\n${err}`);
 		}
 	});
 
@@ -70,13 +70,13 @@ suite("Parsing: DCL Content", function () {
 	const poor5 = 'myDCL : dialog {\n\t: button {\n\t\t= 100;\n\t\tlabel = "random"\n\tok_cancel;\n\t}';
 	const poor6 = 'myDCL : dialog {\n\tok_cancel;\n\t} randomExtra';
 
-	test("Malformed DCL Test #1", function () {	
+	test("Malformed DCL Test #1", function () {
 		try {
 			const sut1 = getDocumentTileContainer(good1);
 			const sut2 = getDocumentTileContainer(poor0);
 			const sut3 = getDocumentTileContainer(poor1);
 			const sut4 = getDocumentTileContainer(poor6);
-			
+
 			const baseline = sut1.flatten().length;
 			expect(sut2.flatten().length).to.equal(baseline - 1);
 			expect(sut2.atoms[0].asTile.atoms[4]).instanceOf(DclTile);
@@ -90,26 +90,26 @@ suite("Parsing: DCL Content", function () {
 			expect(sut3.atoms[0].asTile.atoms[5]).instanceOf(DclTile);
 		}
 		catch (err) {
-			assert.fail("At least one test case parsed incorrectly or aggregated unexpectedly");
+			assert.fail(`At least one test case parsed incorrectly or aggregated unexpectedly\n${err}`);
 		}
 	});
 
 
-	test("Malformed DCL Test #2", function () {	
+	test("Malformed DCL Test #2", function () {
 		try {
 			const sut1 = getDocumentTileContainer(good2);
 			const sut2 = getDocumentTileContainer(poor2);
 			const sut3 = getDocumentTileContainer(poor3);
 			const sut4 = getDocumentTileContainer(poor4);
 			const sut5 = getDocumentTileContainer(poor5);
-			
+
 			const baseline = sut1.flatten().length; // should be 19
 			expect(sut2.flatten().length).to.equal(baseline - 1);
 			expect(sut2.atoms[0].asTile.atoms[4].asTile.atoms.filter(p => p instanceof DclAttribute).length).to.equal(2);
 
 			expect(sut3.flatten().length).to.equal(baseline - 1);
 			expect(sut3.atoms[0].asTile.atoms[4].asTile.atoms.filter(p => p instanceof DclAttribute).length).to.equal(1);
-			
+
 			expect(sut4.flatten().length).to.equal(baseline - 2);
 			expect(sut4.atoms[0].asTile.atoms[4].asTile.atoms.filter(p => p instanceof DclAttribute).length).to.equal(2);
 
@@ -117,7 +117,7 @@ suite("Parsing: DCL Content", function () {
 			expect(sut5.atoms[0].asTile.atoms[4].asTile.atoms.filter(p => p instanceof DclAttribute).length).to.equal(2);
 		}
 		catch (err) {
-			assert.fail("At least one test case parsed incorrectly or aggregated unexpectedly");
+			assert.fail(`At least one test case parsed incorrectly or aggregated unexpectedly\n${err}`);
 		}
 	});
 

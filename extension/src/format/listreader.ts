@@ -23,7 +23,7 @@ export class CursorPosition {
 	}
 
 	static create(offsetInSelection: number, offsetInDocument: number) {
-		let ret = new CursorPosition();
+		const ret = new CursorPosition();
 		ret.offsetInSelection = offsetInSelection;
 		ret.offsetInDocument = offsetInDocument;
 
@@ -62,7 +62,7 @@ class StringInputStream {
 
 	next() {
 		if (this.pos < this.len) {
-			var ch = this.text.charAt(this.pos++);
+			const ch = this.text.charAt(this.pos++);
 			if (ch == "\n") {
 				++this.line;
 				this.col = 0;
@@ -81,7 +81,7 @@ class StringInputStream {
 			return "";
 		}
 
-		let startPos = this.pos;
+		const startPos = this.pos;
 		let posAfterString = this.pos + length;
 
 		if (posAfterString > this.len) {
@@ -115,10 +115,10 @@ export class ListReader {
 	startPosInDoc: CursorPosition;
 
 	constructor(text: string, startPos: CursorPosition, curDoc: vscode.TextDocument) {
-		let trimmedStr = text.trimStart();
-		let lengthOfLeftTrim = text.length - trimmedStr.length;
+		const trimmedStr = text.trimStart();
+		const lengthOfLeftTrim = text.length - trimmedStr.length;
 
-		let startPos2D = curDoc.positionAt(startPos.offsetInDocument);
+		const startPos2D = curDoc.positionAt(startPos.offsetInDocument);
 		this.input = new StringInputStream(text.trimEnd(), startPos2D);
 		this.input.ignore(lengthOfLeftTrim);
 
@@ -148,7 +148,7 @@ export class ListReader {
 			case "\u2029":
 				return true;
 		}
-		let linefeed = ch == '\r' && chNext == '\n';
+		const linefeed = ch == '\r' && chNext == '\n';
 		if (linefeed)
 			return true;
 		return false;
@@ -161,34 +161,34 @@ export class ListReader {
 		this.readWhen((ch) => {
 			if (this.isBlank(ch))
 				return true;
-			let linefeed = ch == '\r' && this.peek(1) == '\n';
+			const linefeed = ch == '\r' && this.peek(1) == '\n';
 			if (linefeed)
 				return true;
 		});
 	}
 
 	readString() {
-		let sline = this.input.line;
-		let scol = this.input.col;
+		const sline = this.input.line;
+		const scol = this.input.col;
 
 		assert(this.peek() == "\"");
 
-		let startPoint = new CursorPosition();
+		const startPoint = new CursorPosition();
 		startPoint.offsetInSelection = this.input.currentOffset();
 		startPoint.offsetInDocument = this.input.currentOffset() + this.startPosInDoc.delta();
-		let stringLength = ListReader.getLengthOfStringSym(this.document, this.input.text, startPoint);
+		const stringLength = ListReader.getLengthOfStringSym(this.document, this.input.text, startPoint);
 
-		let res = this.input.nextString(stringLength);
+		const res = this.input.nextString(stringLength);
 
-		let lastList = this.cachedLists[this.cachedLists.length - 1];
+		const lastList = this.cachedLists[this.cachedLists.length - 1];
 		lastList.addAtom(new LispAtom(sline, scol, res));
 	}
 
 	readSymbol() {
-		let sline = this.input.line;
-		let scol = this.input.col;
+		const sline = this.input.line;
+		const scol = this.input.col;
 
-		let firstCh = this.next();
+		const firstCh = this.next();
 		let res = this.readWhen((ch) => {
 
 			if (this.isBlank(ch))
@@ -199,7 +199,7 @@ export class ListReader {
 				case "(":
 				case ";":
 				case "\"":
-				case "\'":
+				case "'":
 					return false;
 				default:
 					return true;
@@ -207,46 +207,46 @@ export class ListReader {
 		});
 		res = firstCh + res;
 
-		let lastList = this.cachedLists[this.cachedLists.length - 1];
+		const lastList = this.cachedLists[this.cachedLists.length - 1];
 		lastList.addAtom(new LispAtom(sline, scol, res));
 	}
 
 	readQuote() {
-		let quote = this.next();
+		const quote = this.next();
 		this.skipBlanks();
 		return this.readList(new LispAtom(this.input.line, this.input.col, quote));
 	}
 
 	readEndList() {
 		this.next();
-		let lastList = this.cachedLists[this.cachedLists.length - 1];
+		const lastList = this.cachedLists[this.cachedLists.length - 1];
 		lastList.addAtom(new LispAtom(this.input.line, this.input.col, ")"));
 		this.cachedLists.pop();
 	}
 
 	readComment() {
-		let sline = this.input.line;
-		let scol = this.input.col;
+		const sline = this.input.line;
+		const scol = this.input.col;
 
-		let startPoint = new CursorPosition();
+		const startPoint = new CursorPosition();
 		startPoint.offsetInSelection = this.input.currentOffset();
 		startPoint.offsetInDocument = this.input.currentOffset() + this.startPosInDoc.delta();
-		let commentLength = ListReader.getCommentLength(this.document, this.input.text, startPoint);
+		const commentLength = ListReader.getCommentLength(this.document, this.input.text, startPoint);
 
 		let res = this.input.nextString(commentLength);
 		res = res.trimEnd();
-		let lastList = this.cachedLists[this.cachedLists.length - 1];
+		const lastList = this.cachedLists[this.cachedLists.length - 1];
 		lastList.addAtom(new LispAtom(sline, scol, res));
 	}
 
 	readList(prefixAtom?: LispAtom) {
-		let sexpr = new Sexpression();
+		const sexpr = new Sexpression();
 		sexpr.line = this.input.line;
 		sexpr.column = this.input.col;
 
 		if (prefixAtom != undefined)
 			sexpr.addAtom(prefixAtom);
-		let parenAtom = "(";
+		const parenAtom = "(";
 		sexpr.addAtom(new LispAtom(this.input.line, this.input.col, parenAtom));
 		this.cachedLists.push(sexpr);
 		this.next();
@@ -254,7 +254,7 @@ export class ListReader {
 		while (true) {
 
 			this.skipBlanks();
-			let ch = this.peek();
+			const ch = this.peek();
 
 			if (ch == null)
 				break;
@@ -265,8 +265,7 @@ export class ListReader {
 
 			switch (ch) {
 				case "(":
-					let subList = this.readList();
-					sexpr.addAtom(subList);
+					sexpr.addAtom(this.readList());
 					continue;
 
 				case ";":
@@ -277,13 +276,12 @@ export class ListReader {
 					this.readString();
 					continue;
 
-				case "\'":
-					let nextCh = this.peek(1);
-					if (nextCh != "(") {
+				case "'":
+					if (this.peek(1) != "(") {
 						this.readSymbol();
 					}
 					else {
-						let quoteList = this.readQuote();
+						const quoteList = this.readQuote();
 						sexpr.addAtom(quoteList);
 					}
 					continue;
@@ -319,7 +317,7 @@ export class ListReader {
 	//return the position right after the ending char of current comment
 	//return null if the end is out of range or missing
 	static findEndOfComment(document: vscode.TextDocument, stringInRange: string, startPosOffset: CursorPosition): CursorPosition {
-		let inRangeStringLength = stringInRange.length;
+		const inRangeStringLength = stringInRange.length;
 
 		if (startPosOffset.offsetInSelection >= (inRangeStringLength - 1))//it's the final char in the given range;
 			return null; //the given range ends with a comment
@@ -334,7 +332,7 @@ export class ListReader {
 				//the rest part of the given range is less than 2 characters; won't have a |; to end the comment
 				return null; //let's take the rest as part of an incomplete comment
 
-			var endingOfComment = stringInRange.indexOf("|;", startPosOffset.offsetInSelection + 2);
+			const endingOfComment = stringInRange.indexOf("|;", startPosOffset.offsetInSelection + 2);
 
 			if (endingOfComment < (startPosOffset.offsetInSelection + 2)) {
 				//no ending |; found; the LSP in the given range is in problem and let's take the whole rest part as a block comment
@@ -343,7 +341,7 @@ export class ListReader {
 
 			//return the offset of the char that is right after current block comment
 
-			let endPos = new CursorPosition();
+			const endPos = new CursorPosition();
 			endPos.offsetInSelection = endingOfComment + 2;
 			endPos.offsetInDocument = endPos.offsetInSelection + startPosOffset.delta();
 
@@ -354,7 +352,7 @@ export class ListReader {
 		//else, the rest of current line is a comment
 
 		//skip the rest of current line
-		var cursorPos2d = document.positionAt(startPosOffset.offsetInDocument);
+		const cursorPos2d = document.positionAt(startPosOffset.offsetInDocument);
 
 		if (cursorPos2d.line >= (document.lineCount - 1)) {
 			//there's no next line
@@ -362,11 +360,11 @@ export class ListReader {
 		}
 
 		//not the final line; continue to scan the next line
-		let next = new vscode.Position(cursorPos2d.line + 1, 0);
+		const next = new vscode.Position(cursorPos2d.line + 1, 0);
 
-		let nextCharOffsetInDoc = document.offsetAt(next);
+		const nextCharOffsetInDoc = document.offsetAt(next);
 
-		let endPos = new CursorPosition();
+		const endPos = new CursorPosition();
 		endPos.offsetInDocument = nextCharOffsetInDoc;
 		endPos.offsetInSelection = nextCharOffsetInDoc - startPosOffset.delta();
 
@@ -392,7 +390,7 @@ export class ListReader {
 	//return the position right after the ending "
 	//return null if the ending " is out of range or missing
 	static findEndOfDoubleQuoteString(document: vscode.TextDocument, stringInRange: string, startPosOffset: CursorPosition): CursorPosition {
-		let inRangeStringLength = stringInRange.length;
+		const inRangeStringLength = stringInRange.length;
 
 		if (startPosOffset.offsetInSelection >= (inRangeStringLength - 1))//it's the final char in the given range;
 			return null;
@@ -400,7 +398,7 @@ export class ListReader {
 		let posAfterComment = -1;
 
 		for (let curPos = startPosOffset.offsetInSelection + 1; curPos < inRangeStringLength; curPos++) {
-			let char = stringInRange.charAt(curPos);
+			const char = stringInRange.charAt(curPos);
 
 			if (char == '"') {
 				posAfterComment = curPos + 1;
@@ -426,7 +424,7 @@ export class ListReader {
 		if (posAfterComment == -1)
 			return null;
 
-		let nextPos = new CursorPosition();
+		const nextPos = new CursorPosition();
 		nextPos.offsetInSelection = posAfterComment;
 		nextPos.offsetInDocument = posAfterComment + startPosOffset.delta();
 

@@ -45,20 +45,20 @@ export function getProcesses(one: (pid: number, ppid: number, command: string, a
 			else
 				acadExeName = 'acad';
 
-			const CMD_PAT = /^(.*)\s+([0-9]+)\.[0-9]+[+-][0-9]+\s+(.*)\s+([0-9]+)\s+([0-9]+)$/;
+			//const CMD_PAT = /^(.*)\s+([0-9]+)\.[0-9]+[+-][0-9]+\s+(.*)\s+([0-9]+)\s+([0-9]+)$/;
 			//const CMD_PAT = /^(.*)\s+([0-9]+)\.[0-9]+[+-][0-9]+\s+([0-9]+)\s+([0-9]+)$/;
 			const acadProcFinder = join(__dirname, 'acadProcessFinder.exe');
 			proc = spawn(acadProcFinder, [acadExeName]);
 			proc.stdout.setEncoding('utf8');
 			proc.stdout.on('data', lines(line => {
 				//let matches = _.compact(line.trim().split(' '));
-				let cells = line.split('\t');
+				const cells = line.split('\t');
 				if (cells.length == 5) {
-					let exePath = cells[0];
-					let startTime = cells[1];
-					let args = cells[2];
-					let pid = cells[3];
-					let title = cells[4];
+					const exePath = cells[0];
+					const startTime = cells[1];
+					const args = cells[2];
+					const pid = cells[3];
+					const title = cells[4];
 
 					one(Number(pid), -1, exePath, args, exePath, Number(startTime), title);
 				}

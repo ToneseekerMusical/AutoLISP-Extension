@@ -1,10 +1,10 @@
 import * as vscode from 'vscode';
-import * as nls from 'vscode-nls';
+//import * as nls from 'vscode-nls';
 import { SearchPatterns } from '../providers/providerShared';
 import { ILispFragment } from '../astObjects/ILispFragment';
 import { LispContainer } from '../astObjects/lispContainer';
 
-const localize = nls.loadMessageBundle();
+//const localize = nls.loadMessageBundle();
 
 // This file exists to support the 'autolisp.generateDocumentation' command, which is register in:
 // 		/extension/src/commands.ts
@@ -23,7 +23,7 @@ export async function getDefunAtPosition(atom: ILispFragment, pos: vscode.Positi
 			await vscode.window.showQuickPick(quickPicks).then(response => { outResult = response; });
 		}
 		defs = defs.filter(d => d.getNthKeyAtom(1).symbol === outResult);
-	}	
+	}
 	// Now we know what defun we are documenting, so we extract arguments; if applicable
 	return defs[0];
 }

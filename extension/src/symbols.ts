@@ -6,46 +6,48 @@ import { LispContainerServices } from './services/lispContainerServices';
 import { ILispFragment } from './astObjects/ILispFragment';
 import { LispContainer } from './astObjects/lispContainer';
 
+// central repo for all symbol caches, the document manager was tied into
+// this data source, but is a separate data source we don't want to embed in
+// the ReadOnlyDocument or the already heavily bloated document manager.
+const _definedCache: Map<string, RootSymbolMapHost> = new Map()
 
-export namespace SymbolManager {
-	
-	// central repo for all symbol caches, the document manager was tied into
-	// this data source, but is a separate data source we don't want to embed in
-	// the ReadOnlyDocument or the already heavily bloated document manager.
-	const _definedCache: Map<string, RootSymbolMapHost> = new Map();
-
-	export function updateOrCreateSymbolMap(doc: ReadonlyDocument, forceUpdate: boolean): string {
-		const key = DocumentServices.normalizeFilePath(doc.fileName);
-		const active = vscode.window.activeTextEditor?.document?.fileName ?? '';
-		const doUpdate = forceUpdate 
-			  // If the requested symbol map does not exist, or does exists, but probably disposed
-			  || !_definedCache.get(key)?.isValid
-			  // If the requested symbol map represents the active document, then require accuracy
-			  || (active && DocumentServices.normalizeFilePath(active) === key);
-		if (doUpdate) {
-			if (_definedCache.get(key)) {
-				_definedCache.get(key).dispose();
-			}
-			_definedCache.set(key, new RootSymbolMapHost(key, doc.documentContainer));
+function updateOrCreateSymbolMap(doc: ReadonlyDocument, forceUpdate: boolean): string {
+	const key = DocumentServices.normalizeFilePath(doc.fileName);
+	const active = vscode.window.activeTextEditor?.document?.fileName ?? '';
+	const doUpdate = forceUpdate
+		// If the requested symbol map does not exist, or does exists, but probably disposed
+		|| !_definedCache.get(key)?.isValid
+		// If the requested symbol map represents the active document, then require accuracy
+		|| (active && DocumentServices.normalizeFilePath(active) === key);
+	if (doUpdate) {
+		if (_definedCache.get(key)) {
+			_definedCache.get(key).dispose();
 		}
-		return key;
+		_definedCache.set(key, new RootSymbolMapHost(key, doc.documentContainer));
 	}
+	return key;
+}
 
-	export function invalidateSymbolMapCache(): number {
-		try {
-			_definedCache.forEach(root => {
-				root.dispose();
-			});
-			return [..._definedCache.keys()].length;	
-		} finally {
-			_definedCache.clear();	
-		}
+function invalidateSymbolMapCache(): number {
+	try {
+		_definedCache.forEach(root => {
+			root.dispose();
+		});
+		return [..._definedCache.keys()].length;
+	} finally {
+		_definedCache.clear();
 	}
+}
 
-	export function getSymbolMap(doc: ReadonlyDocument, forceUpdate: boolean = false): RootSymbolMapHost {
-		const key = updateOrCreateSymbolMap(doc, forceUpdate);
-		return _definedCache.get(key);
-	}
+function getSymbolMap(doc: ReadonlyDocument, forceUpdate: boolean = false): RootSymbolMapHost {
+	const key = this.updateOrCreateSymbolMap(doc, forceUpdate);
+	return _definedCache.get(key);
+}
+
+export const SymbolManager = {
+	updateOrCreateSymbolMap,
+	invalidateSymbolMapCache,
+	getSymbolMap
 }
 
 
@@ -57,7 +59,7 @@ export namespace SymbolManager {
 export interface ISymbolBase extends vscode.Disposable {
 	readonly filePath: string;
 	readonly hasId: boolean;
-	readonly parent: ISymbolHost|null;
+	readonly parent: ISymbolHost | null;
 	readonly range: vscode.Range;
 	readonly id?: string;
 	readonly asHost?: AnonymousSymbolHost;
@@ -66,7 +68,7 @@ export interface ISymbolBase extends vscode.Disposable {
 }
 
 export interface ISymbolReference extends ISymbolBase {
-	readonly id: string;	
+	readonly id: string;
 	readonly flatIndex: number;
 	readonly isLocalization: boolean;
 	readonly isDefinition: boolean;
@@ -75,7 +77,7 @@ export interface ISymbolReference extends ISymbolBase {
 
 export interface ISymbolHost extends ISymbolBase {
 	readonly items: Array<ISymbolBase>;
-	readonly named: ISymbolReference|null;
+	readonly named: ISymbolReference | null;
 	readonly isValid: boolean;
 	readonly isRoot: boolean;
 	collectAllSymbols(allSymbols?: Map<string, Array<ISymbolReference>>): Map<string, Array<ISymbolReference>>;
@@ -86,20 +88,12 @@ export interface ISymbolHost extends ISymbolBase {
 // doing this makes the Symbol Manager the only possible constructor outside of this document
 // this is a protective measure for the Parent/Child references that need to be cleaned up
 // While not entirely necessary, it does improve code readability
-export interface IRootSymbolHost extends ISymbolHost {}
-
-
-
-
-
-
-
-
+export type IRootSymbolHost = ISymbolHost
 
 
 class NamedSymbolReference implements ISymbolReference {
 	id: string;
-	flatIndex: number;	
+	flatIndex: number;
 	filePath: string;
 	parent: ISymbolHost;
 	range: vscode.Range;
@@ -124,7 +118,7 @@ class NamedSymbolReference implements ISymbolReference {
 		this.isLocalization = true;
 		return this;
 	}
-	
+
 	withDefunFlag(): NamedSymbolReference {
 		this.isDefinition = true;
 		return this;
@@ -143,24 +137,10 @@ class NamedSymbolReference implements ISymbolReference {
 	}
 
 
-	findLocalizingParent(): ISymbolHost {		
+	findLocalizingParent(): ISymbolHost {
 		return this.parent.findLocalizingParent(this.id);
 	}
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 const localizers = ['defun', 'defun-q', 'lambda', 'foreach', 'vlax-for'];
 class AnonymousSymbolHost implements ISymbolHost {
@@ -175,15 +155,15 @@ class AnonymousSymbolHost implements ISymbolHost {
 	get asReference() { return null; }
 	get isValid() { return !this._disposed; }
 	get isRoot() { return false; }
-	
-	
+
+
 	constructor(owner: ISymbolHost, fsPath: string, source: LispContainer, isProcessedBySubClass = false) {
 		this._disposed = false;
 		this.items = [];
 		this.parent = owner;
 		this.filePath = fsPath;
 		this.named = null;
-		this.range = source.getRange();		
+		this.range = source.getRange();
 		if (isProcessedBySubClass) {
 			return;
 		}
@@ -201,12 +181,12 @@ class AnonymousSymbolHost implements ISymbolHost {
 
 			this.items.forEach(item => {
 				item.dispose();
-			});			
+			});
 			this.items.length = 0;
-			
+
 			delete this.range;
 			delete this.parent;
-			
+
 			this._disposed = true;
 		}
 	}
@@ -233,14 +213,14 @@ class AnonymousSymbolHost implements ISymbolHost {
 		// else somebody probably used 'nil' for the localization area and which is valid in some scenarios
 	}
 
-	protected aggregateContainer(source: LispContainer, after?: ILispFragment) : void {
+	protected aggregateContainer(source: LispContainer, after?: ILispFragment): void {
 		let doWork = after === undefined;
 		source.atoms.forEach(item => {
 			if (!doWork) {
 				doWork = item.line === after.line && item.column === after.column;
-			} else if (item instanceof LispContainer) {				
+			} else if (item instanceof LispContainer) {
 				const name = LispContainerServices.getLispContainerTypeName(item);
-				if (name === localizers[0] || name === localizers[1]) { 
+				if (name === localizers[0] || name === localizers[1]) {
 					// Is defun or defun-q
 					this.items.push(new NamedSymbolHost(this, this.filePath, item));
 				} else if (localizers.includes(name)) {
@@ -299,10 +279,10 @@ class AnonymousSymbolHost implements ISymbolHost {
 }
 
 
-class NamedSymbolHost extends AnonymousSymbolHost {	
+class NamedSymbolHost extends AnonymousSymbolHost {
 	get hasId() { return true; }
 	get id() { return this.named.id; }
-	
+
 	constructor(owner: ISymbolHost, fsPath: string, source: LispContainer) {
 		super(owner, fsPath, source, true);
 		this.named = new NamedSymbolReference(this, fsPath, source.getNthKeyAtom(1)).withDefunFlag();
@@ -319,7 +299,7 @@ class RootSymbolMapHost extends AnonymousSymbolHost implements IRootSymbolHost {
 		this.aggregateContainer(source);
 	}
 	get isRoot() { return true; }
-
+	//eslint-disable-next-line @typescript-eslint/no-unused-vars
 	findLocalizingParent(key: string): ISymbolHost {
 		return this;
 	}

@@ -45,7 +45,7 @@ export async function getSearchOption(title: string, hint: string) {
 
             quickpick.onDidTriggerButton(async e => {
                 if (e instanceof optionButton) {
-                    let btn = e as optionButton;
+                    const btn = e as optionButton;
 
                     if (btn.name == optionButton.name_MatchCase) {
                         SearchOption.activeInstance.matchCase = !SearchOption.activeInstance.matchCase;
@@ -109,8 +109,8 @@ export async function getString(title: string, hint: string) {
             quickpick.value = '';
             quickpick.ignoreFocusOut = true;
 
-            let closeTooltip = localize("autolispext.project.findreplace.optionbutton.close", "Close");
-            let closeBtn = new optionButton(IconUris.closeUri(), null, true, closeTooltip, optionButton.name_Close);
+            const closeTooltip = localize("autolispext.project.findreplace.optionbutton.close", "Close");
+            const closeBtn = new optionButton(IconUris.closeUri(), null, true, closeTooltip, optionButton.name_Close);
             quickpick.buttons = [closeBtn];
 
             quickpick.onDidAccept(async () => {
@@ -127,7 +127,7 @@ export async function getString(title: string, hint: string) {
 
             quickpick.onDidTriggerButton(async e => {
                 if (e instanceof optionButton) {
-                    let btn = e as optionButton;
+                    const btn = e as optionButton;
 
                     if (btn.name == optionButton.name_Close) {
                         quickpick.hide();

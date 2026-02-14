@@ -9,8 +9,8 @@ export function calculateABSPathForDAP(productPath){
 	if(!existsSync(productPath)){
 		return "";
 	}
-	let folder = path.dirname(productPath);
-	let platform = os.type();						//reference - https://nodejs.org/api/os.html#os_os_type
+	const folder = path.dirname(productPath);
+	const platform = os.type();						//reference - https://nodejs.org/api/os.html#os_os_type
 	if(platform === 'Windows_NT'){
 		return folder + "\\AutoLispDebugAdapter.exe";
 	}else if(platform === 'Darwin'){
@@ -22,11 +22,11 @@ export function calculateABSPathForDAP(productPath){
 
 //calculate the process name for AutoCAD process picker
 export function calculateACADProcessName(pName){
-	let processName = pName ? pName.replace(".exe", "") : "";
+	const processName = pName ? pName.replace(".exe", "") : "";
 	if(processName !== "")
 		return processName;
 
-	let platform = os.type();						//reference - https://nodejs.org/api/os.html#os_os_type
+	const platform = os.type();						//reference - https://nodejs.org/api/os.html#os_os_type
 	
 	if(platform === 'Windows_NT'){
 		return "acad";
@@ -38,8 +38,8 @@ export function calculateACADProcessName(pName){
 }
 
 export function isSupportedLispFile(path){
-	let ext = path.substring(path.length - 3, path.length).toUpperCase();
-	let platform = os.type();
+	const ext = path.substring(path.length - 3, path.length).toUpperCase();
+	const platform = os.type();
 	if(platform === 'Windows_NT'){
 		return ext === "LSP" || ext === "MNL" || ext === "DCL";
 	}else if(platform === 'Darwin'){

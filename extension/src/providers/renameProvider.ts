@@ -12,7 +12,7 @@ import { primitiveRegex } from '../astObjects/lispAtom';
 
 export function AutoLispExtPrepareRename(document: vscode.TextDocument, position: vscode.Position): { range: vscode.Range; placeholder: string; } {
 	const roDoc = AutoLispExt.Documents.getDocument(document);
-	let selectedAtom: ILispFragment = SharedAtomic.getNonPrimitiveAtomFromPosition(roDoc, position);
+	const selectedAtom: ILispFragment = SharedAtomic.getNonPrimitiveAtomFromPosition(roDoc, position);
 	if (!selectedAtom) {
 		return null;
 	}
@@ -32,10 +32,15 @@ export function AutoLispExtProvideRenameEdits(document: vscode.TextDocument, pos
 	return edits;
 }
 
+export interface ISourceRange {
+	range: vscode.Range,
+	source: string,
+}
 
-namespace RenameProviderSupport {
 
-	export function provideRenameEditsWorker(roDoc: ReadonlyDocument, selectedAtom: ILispFragment, newName: string): vscode.WorkspaceEdit | null {
+export const RenameProviderSupport = {
+
+	provideRenameEditsWorker(roDoc: ReadonlyDocument, selectedAtom: ILispFragment, newName: string): vscode.WorkspaceEdit | null {
 		const docSymbols = SymbolManager.getSymbolMap(roDoc);
 		const selectedIndex = selectedAtom.flatIndex;
 		const selectedKey = selectedAtom.symbol.toLowerCase();
@@ -46,45 +51,45 @@ namespace RenameProviderSupport {
 			return editContext;
 		}
 
-		const init = getTargetSymbolReference(docSymbols, selectedKey, selectedIndex);
+		const init = this.getTargetSymbolReference(docSymbols, selectedKey, selectedIndex);
 		const parent = init?.findLocalizingParent();
 		const possible = DocumentServices.findAllDocumentsWithCustomSymbolKey(selectedKey);
-		if (!parent.equal(docSymbols) || !hasGlobalizer(possible, selectedKey)) {
+		if (!parent.equal(docSymbols) || !this.hasGlobalizer(possible, selectedKey)) {
 			// has non-root localization and can ONLY effect the active document
-			populateEdits(editContext, newName, getRenameTargetsFromParentScope(roDoc, parent, selectedKey));
+			this.populateEdits(editContext, newName, this.getRenameTargetsFromParentScope(roDoc, parent, selectedKey));
 		} else {
 			// find each entry within possible that is not localized
-			populateEditsFromDocumentList(editContext, newName, selectedKey, possible);
+			this.populateEditsFromDocumentList(editContext, newName, selectedKey, possible);
 		}
 		return editContext;
-	}
+	},
 
-	export function normalizeUserProvidedValue(newValue: string, oldValue: string): string | null {
+	normalizeUserProvidedValue(newValue: string, oldValue: string): string | null {
 		newValue = newValue.trim();
-		if (newValue.length === 0 || newValue === oldValue || !isValidInput(newValue)) {
+		if (newValue.length === 0 || newValue === oldValue || !this.isValidInput(newValue)) {
 			return null;
 		}
 		return newValue;
-	}
+	},
 
-	export function getTargetSymbolReference(symbolMap: IRootSymbolHost, key: string, index: number): ISymbolReference | null {
+	getTargetSymbolReference(symbolMap: IRootSymbolHost, key: string, index: number): ISymbolReference | null {
 		const symbolArray = symbolMap.collectAllSymbols().get(key);
 		if (!symbolArray && !Array.isArray(symbolArray)) {
 			return null;
 		}
 		const init = symbolArray.find(p => p.asReference?.flatIndex === index);
 		return init;
-	}
+	},
 
-	export function populateEditsFromDocumentList(editContext: vscode.WorkspaceEdit, newValue: string, key: string, docs: Array<ReadonlyDocument>): void {
+	populateEditsFromDocumentList(editContext: vscode.WorkspaceEdit, newValue: string, key: string, docs: Array<ReadonlyDocument>): void {
 		docs.forEach(extDoc => {
 			const externalSymbols = SymbolManager.getSymbolMap(extDoc);
-			const externalItems = getRenameTargetsFromParentScope(extDoc, externalSymbols, key);
-			populateEdits(editContext, newValue, externalItems);
+			const externalItems = this.getRenameTargetsFromParentScope(extDoc, externalSymbols, key);
+			this.populateEdits(editContext, newValue, externalItems);
 		});
-	}
+	},
 
-	export function hasGlobalizer(docs: Array<ReadonlyDocument>, key: string): boolean {
+	hasGlobalizer(docs: Array<ReadonlyDocument>, key: string): boolean {
 		for (let i = 0; i < docs.length; i++) {
 			const roDoc = docs[i];
 			if (DocumentServices.hasGlobalizedTargetKey(roDoc, key)) {
@@ -92,14 +97,9 @@ namespace RenameProviderSupport {
 			}
 		}
 		return false;
-	}
+	},
 
-	interface ISourceRange {
-		range: vscode.Range;
-		source: string;
-	}
-
-	export function getRenameTargetsFromParentScope(roDoc: ReadonlyDocument, targetScope: ISymbolHost, lowerKey: string): Array<ISourceRange> {
+	getRenameTargetsFromParentScope(roDoc: ReadonlyDocument, targetScope: ISymbolHost, lowerKey: string): Array<ISourceRange> {
 		const flatView = roDoc.documentContainer?.flatten();
 
 		// This handles renaming @Param declarations of Defun documentation
@@ -120,16 +120,16 @@ namespace RenameProviderSupport {
 			return { range: item.range, source: item.filePath };
 		}) ?? [];
 		return standardTargets.concat(commentTargets);
-	}
+	},
 
 
-	export function isValidInput(userValue: string): boolean {
+	isValidInput(userValue: string): boolean {
 		const val = userValue.trim();
 		return !primitiveRegex.test(val) && !val.includes(' ');
-	}
+	},
 
 
-	export function populateEdits(editContext: vscode.WorkspaceEdit, newValue: string, items: Array<ISourceRange>): void {
+	populateEdits(editContext: vscode.WorkspaceEdit, newValue: string, items: Array<ISourceRange>): void {
 		items.forEach(item => {
 			editContext.replace(vscode.Uri.file(item.source), item.range, newValue);
 		});

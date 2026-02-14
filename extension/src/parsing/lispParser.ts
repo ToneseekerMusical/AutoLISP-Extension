@@ -19,172 +19,172 @@ import { getEOL } from './shared';
 
 
 class LeftParentItem {
-    public location: Number;
+	public location: number;
 
-    constructor(pos) {
-        this.location = pos;
-    }
+	constructor(pos) {
+		this.location = pos;
+	}
 }
 
 export class LispParser {
-    document: vscode.TextDocument;
-    atomsForest: Array<string | Sexpression>;
+	document: vscode.TextDocument;
+	atomsForest: Array<string | Sexpression>;
 
-    constructor(document: vscode.TextDocument) {
-        this.atomsForest = new Array<string | Sexpression>();
-        this.document = document;
-    }
-
-
-    // this new block of getters maintains some reverse compatibility before the code was restructured
-    static get getDocumentContainer() { return getDocumentContainer; }
-    static get getEOL() { return getEOL; }
+	constructor(document: vscode.TextDocument) {
+		this.atomsForest = new Array<string | Sexpression>();
+		this.document = document;
+	}
 
 
-    isTopLevelAtom(line: number, column: number): boolean {
-        for (let i = 0; i < this.atomsForest.length; i++) {
-            if (this.atomsForest[i] instanceof Sexpression) {
-                let lispLists = this.atomsForest[i] as Sexpression;
-                if (lispLists.atoms[0].line == line
-                    && lispLists.atoms[0].column == column)
-                    return true;
-            }
-        }
-        return false;
-    }
+	// this new block of getters maintains some reverse compatibility before the code was restructured
+	static get getDocumentContainer() { return getDocumentContainer; }
+	static get getEOL() { return getEOL; }
 
-    private static readComments(document: vscode.TextDocument, docAsString: string, startPosOffset: CursorPosition): string {
 
-        if (docAsString.length == 0) {
-            console.log("scanning an empty string is meaningless\n")
-            return null;
-        }
+	isTopLevelAtom(line: number, column: number): boolean {
+		for (let i = 0; i < this.atomsForest.length; i++) {
+			if (this.atomsForest[i] instanceof Sexpression) {
+				const lispLists = this.atomsForest[i] as Sexpression;
+				if (lispLists.atoms[0].line == line
+					&& lispLists.atoms[0].column == column)
+					return true;
+			}
+		}
+		return false;
+	}
 
-        let offsetAfterComment = ListReader.findEndOfComment(document, docAsString, startPosOffset);
+	private static readComments(document: vscode.TextDocument, docAsString: string, startPosOffset: CursorPosition): string {
 
-        if (offsetAfterComment == null) {
-            offsetAfterComment = new CursorPosition();
-            offsetAfterComment.offsetInSelection = docAsString.length;
-            offsetAfterComment.offsetInDocument = docAsString.length + startPosOffset.delta();
-        }
-        else if (offsetAfterComment.offsetInSelection > docAsString.length) { //out of the given range 
-            offsetAfterComment.offsetInSelection = docAsString.length;
-            offsetAfterComment.offsetInDocument = docAsString.length + startPosOffset.delta();
-        }
-        else if (offsetAfterComment.offsetInSelection <= startPosOffset.offsetInSelection) {
-            //it shouldn't run into this code path;
-            console.log("failed to locate the end of a comment\n");
-            offsetAfterComment.offsetInSelection = docAsString.length;
-            offsetAfterComment.offsetInDocument = docAsString.length + startPosOffset.delta();
-        }
+		if (docAsString.length == 0) {
+			console.log("scanning an empty string is meaningless\n")
+			return null;
+		}
 
-        let startPos2d = document.positionAt(startPosOffset.offsetInDocument);
-        let endPos2d = document.positionAt(offsetAfterComment.offsetInDocument);
+		let offsetAfterComment = ListReader.findEndOfComment(document, docAsString, startPosOffset);
 
-        return document.getText(new vscode.Range(startPos2d, endPos2d));
-    }
-    
+		if (offsetAfterComment == null) {
+			offsetAfterComment = new CursorPosition();
+			offsetAfterComment.offsetInSelection = docAsString.length;
+			offsetAfterComment.offsetInDocument = docAsString.length + startPosOffset.delta();
+		}
+		else if (offsetAfterComment.offsetInSelection > docAsString.length) { //out of the given range 
+			offsetAfterComment.offsetInSelection = docAsString.length;
+			offsetAfterComment.offsetInDocument = docAsString.length + startPosOffset.delta();
+		}
+		else if (offsetAfterComment.offsetInSelection <= startPosOffset.offsetInSelection) {
+			//it shouldn't run into this code path;
+			console.log("failed to locate the end of a comment\n");
+			offsetAfterComment.offsetInSelection = docAsString.length;
+			offsetAfterComment.offsetInDocument = docAsString.length + startPosOffset.delta();
+		}
 
-    public tokenizeString(needFmtString: string, offset: number) {
-        let selectionStartOffset = offset;
-        let textString = needFmtString;
+		const startPos2d = document.positionAt(startPosOffset.offsetInDocument);
+		const endPos2d = document.positionAt(offsetAfterComment.offsetInDocument);
 
-        let document = this.document;
+		return document.getText(new vscode.Range(startPos2d, endPos2d));
+	}
 
-        let leftParensStack = [];
 
-        for (let i = 0; i < textString.length; /*i++ is commented out on purpose, as the increment is different case by case*/) {
-            let ch = textString.charAt(i);
+	public tokenizeString(needFmtString: string, offset: number) {
+		const selectionStartOffset = offset;
+		const textString = needFmtString;
 
-            if (ch == ";") {
-                let startPos = new CursorPosition()
-                startPos.offsetInSelection = i;
-                startPos.offsetInDocument = i + selectionStartOffset;
+		const document = this.document;
 
-                let comments = LispParser.readComments(document, textString, startPos);
-                if (comments == null)
-                    continue;
-                if (leftParensStack.length == 0) {
-                    this.atomsForest.push(comments);
-                }
+		const leftParensStack = [];
 
-                i += comments.length;
+		for (let i = 0; i < textString.length; /*i++ is commented out on purpose, as the increment is different case by case*/) {
+			const ch = textString.charAt(i);
 
-                continue;
-            }
+			if (ch == ";") {
+				const startPos = new CursorPosition()
+				startPos.offsetInSelection = i;
+				startPos.offsetInDocument = i + selectionStartOffset;
 
-            if (ch == '\"') {
-                let startPos = new CursorPosition()
-                startPos.offsetInSelection = i;
-                startPos.offsetInDocument = i + selectionStartOffset;
+				const comments = LispParser.readComments(document, textString, startPos);
+				if (comments == null)
+					continue;
+				if (leftParensStack.length == 0) {
+					this.atomsForest.push(comments);
+				}
 
-                let endOfString = ListReader.findEndOfDoubleQuoteString(document, textString, startPos);
-                let startPos2d = document.positionAt(startPos.offsetInDocument);
-                let endPos2d = null;
-                if (endOfString != null) {
-                    endPos2d = document.positionAt(endOfString.offsetInDocument);
-                }
-                else {
-                    endPos2d = document.positionAt(selectionStartOffset + textString.length);
-                }
+				i += comments.length;
 
-                let stringExpr = document.getText(new vscode.Range(startPos2d, endPos2d));
-                //set the index of next iteration
-                i += stringExpr.length;
+				continue;
+			}
 
-                if (stringExpr.length == 0)
-                    console.log("failed to read string on top level\n");
+			if (ch == '"') {
+				const startPos = new CursorPosition()
+				startPos.offsetInSelection = i;
+				startPos.offsetInDocument = i + selectionStartOffset;
 
-                if (leftParensStack.length == 0) {
-                    this.atomsForest.push(stringExpr);
-                }
+				const endOfString = ListReader.findEndOfDoubleQuoteString(document, textString, startPos);
+				const startPos2d = document.positionAt(startPos.offsetInDocument);
+				let endPos2d = null;
+				if (endOfString != null) {
+					endPos2d = document.positionAt(endOfString.offsetInDocument);
+				}
+				else {
+					endPos2d = document.positionAt(selectionStartOffset + textString.length);
+				}
 
-                continue;
-            }
+				const stringExpr = document.getText(new vscode.Range(startPos2d, endPos2d));
+				//set the index of next iteration
+				i += stringExpr.length;
 
-            if (ch == "(") {
-                leftParensStack.push(new LeftParentItem(i));
-            }
-            else if (ch == ")") {
-                if (leftParensStack.length == 0) {
-                    // this is unbalnace paren
-                    this.atomsForest.push(ch);
-                }
-                else if (leftParensStack.length == 1) {
-                    // this is the toplevel scope s-expression
-                    let leftparen = leftParensStack.pop();
-                    let sexpr = textString.substring(leftparen.location, i + 1);
+				if (stringExpr.length == 0)
+					console.log("failed to read string on top level\n");
 
-                    let exprStartPos = new CursorPosition();
-                    exprStartPos.offsetInSelection = 0;
-                    exprStartPos.offsetInDocument = leftparen.location + selectionStartOffset;
+				if (leftParensStack.length == 0) {
+					this.atomsForest.push(stringExpr);
+				}
 
-                    let reader = new ListReader(sexpr, exprStartPos, document);
-                    let lispLists = reader.tokenize();
-                    this.atomsForest.push(lispLists);
-                }
-                else {
-                    leftParensStack.pop();
-                }
-            }
-            else if (leftParensStack.length == 0) {
-                this.atomsForest.push(ch);
-            }
+				continue;
+			}
 
-            i++;
-            continue;
-        }
+			if (ch == "(") {
+				leftParensStack.push(new LeftParentItem(i));
+			}
+			else if (ch == ")") {
+				if (leftParensStack.length == 0) {
+					// this is unbalnace paren
+					this.atomsForest.push(ch);
+				}
+				else if (leftParensStack.length == 1) {
+					// this is the toplevel scope s-expression
+					const leftparen = leftParensStack.pop();
+					const sexpr = textString.substring(leftparen.location, i + 1);
 
-        if (leftParensStack.length > 0) {
-            let sexpr = textString.substring(leftParensStack[0].location, textString.length);
+					const exprStartPos = new CursorPosition();
+					exprStartPos.offsetInSelection = 0;
+					exprStartPos.offsetInDocument = leftparen.location + selectionStartOffset;
 
-            let exprStartPos = new CursorPosition();
-            exprStartPos.offsetInSelection = 0;
-            exprStartPos.offsetInDocument = leftParensStack[0].location + selectionStartOffset;
+					const reader = new ListReader(sexpr, exprStartPos, document);
+					const lispLists = reader.tokenize();
+					this.atomsForest.push(lispLists);
+				}
+				else {
+					leftParensStack.pop();
+				}
+			}
+			else if (leftParensStack.length == 0) {
+				this.atomsForest.push(ch);
+			}
 
-            let reader = new ListReader(sexpr, exprStartPos, document);
-            let lispLists = reader.tokenize();
-            this.atomsForest.push(lispLists);
-        }
-    }
+			i++;
+			continue;
+		}
+
+		if (leftParensStack.length > 0) {
+			const sexpr = textString.substring(leftParensStack[0].location, textString.length);
+
+			const exprStartPos = new CursorPosition();
+			exprStartPos.offsetInSelection = 0;
+			exprStartPos.offsetInDocument = leftParensStack[0].location + selectionStartOffset;
+
+			const reader = new ListReader(sexpr, exprStartPos, document);
+			const lispLists = reader.tokenize();
+			this.atomsForest.push(lispLists);
+		}
+	}
 }

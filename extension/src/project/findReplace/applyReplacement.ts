@@ -2,7 +2,7 @@ import * as fs from 'fs-extra';
 import * as vscode from 'vscode'
 
 import { FileNode } from './searchTree';
-import { getTmpFilePath, getDocument } from '../../utils';
+import { getDocument } from '../../utils';
 import * as nls from 'vscode-nls';
 const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
@@ -13,7 +13,7 @@ export async function applyReplacementInFile(filePlan: FileNode) {
 			return;
 		}
 
-		let doc = getDocument(filePlan.filePath);
+		const doc = getDocument(filePlan.filePath);
 
 		let data = null;
 		if (doc != null)
@@ -22,10 +22,12 @@ export async function applyReplacementInFile(filePlan: FileNode) {
 			data = fs.readFileSync(filePlan.filePath).toString();
 
 		let newFileContent = '';
-		for (let lineNum = 0; lineNum >= 0; lineNum++) {
-			let newlinePos = data.indexOf('\n');
+		let lineNum = 0;
+		while (lineNum >= 0) {
+			const newlinePos = data.indexOf('\n');
 			if (newlinePos < 0) {
 				//this is the last line
+				lineNum = -1
 				newFileContent += chooseLineContent(lineNum, data, filePlan);
 				break;
 			}
@@ -47,10 +49,11 @@ export async function applyReplacementInFile(filePlan: FileNode) {
 				newFileContent += '\r\n';
 
 				data = data.substring(newlinePos + 1);
+				lineNum++;
 			}
 		}
 
-		let done = await applyChangeInEditor(filePlan.filePath, newFileContent);
+		const done = await applyChangeInEditor(filePlan.filePath, newFileContent);
 		if (done)
 			return;
 
@@ -66,22 +69,22 @@ export async function applyReplacementInFile(filePlan: FileNode) {
 //throws an error if the editor failed to replace text
 async function applyChangeInEditor(filePath: string, fileContent: string) {
 
-	let doc = getDocument(filePath);
+	const doc = getDocument(filePath);
 	if (doc != null) {
 		//ok, there's an editor shown for the same file
 
-		let docRange = doc.validateRange(
+		const docRange = doc.validateRange(
 			new vscode.Range(
 				new vscode.Position(0, 0),
 				new vscode.Position(Number.MAX_VALUE, Number.MAX_VALUE)
 			));
 
-		let edit = new vscode.WorkspaceEdit();
+		const edit = new vscode.WorkspaceEdit();
 		edit.replace(doc.uri, docRange, fileContent);
 
-		let succ = await vscode.workspace.applyEdit(edit);
+		const succ = await vscode.workspace.applyEdit(edit);
 		if (!succ) {
-			let msg = localize("autolispext.project.findreplace.applyreplacement.replacetextfailed", "Failed to replace text: ");
+			const msg = localize("autolispext.project.findreplace.applyreplacement.replacetextfailed", "Failed to replace text: ");
 			throw new Error(msg + filePath);
 		}
 
@@ -105,8 +108,8 @@ function applyChangeByFile(filePath: string, fileContent: string): string {
 }
 
 function chooseLineContent(line: number, oldLineText: string, replNode: FileNode) {
-	for (let finding of replNode.findings) {
-		let rgLine = finding.line - 1;//rg.exe line and column start with 1
+	for (const finding of replNode.findings) {
+		const rgLine = finding.line - 1;//rg.exe line and column start with 1
 		if (line != rgLine)
 			continue;
 

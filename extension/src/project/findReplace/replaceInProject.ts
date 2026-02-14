@@ -9,21 +9,21 @@ const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export async function replaceInProject() {
     if (ProjectTreeProvider.hasProjectOpened() == false) {
-        let msg = localize("autolispext.project.findreplace.replace.openproject", "A project must be open before you can replace a text string.");
+        const msg = localize("autolispext.project.findreplace.replace.openproject", "A project must be open before you can replace a text string.");
         vscode.window.showInformationMessage(msg);
         return;
     }
 
     //get find options: keyword, match case, etc.
-    let title = localize("autolispext.project.findreplace.replace.title", "Replace in Project");
-    let keywordHint = localize("autolispext.project.findreplace.replace.hint.keyword", "Type a text string to find, and press Enter.");
-    let opt = await getSearchOption(title, keywordHint);
+    const title = localize("autolispext.project.findreplace.replace.title", "Replace in Project");
+    const keywordHint = localize("autolispext.project.findreplace.replace.hint.keyword", "Type a text string to find, and press Enter.");
+    const opt = await getSearchOption(title, keywordHint);
     if (opt.isKeywordProvided() == false)
         return;
 
-    let replacementHint = localize("autolispext.project.findreplace.replace.hint.replacement", "Type a text string to replace with, and press Enter.");
+    const replacementHint = localize("autolispext.project.findreplace.replace.hint.replacement", "Type a text string to replace with, and press Enter.");
     //get the replacment of given keyword
-    let repl = await getString(title, replacementHint);
+    const repl = await getString(title, replacementHint);
     if (repl == undefined)
         return;
 
@@ -32,7 +32,7 @@ export async function replaceInProject() {
     opt.replacement = repl;
     opt.stopRequested = false;
 
-    let finder = new FindInProject();
+    const finder = new FindInProject();
     await finder.execute(opt, ProjectTreeProvider.instance().projectNode);
 
     //update the search tree

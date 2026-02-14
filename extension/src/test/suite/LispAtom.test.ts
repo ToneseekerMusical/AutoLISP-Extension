@@ -8,13 +8,13 @@ const matom = new LispAtom(83, 8, ';|this is a\r\n          |multiline test\r\n 
 const lparen = new LispAtom(4, 6, '(');
 const rparen = new LispAtom(4, 6, ')');
 
-suite("LispAtom Tests", function () {	
+suite("LispAtom Tests", function () {
 	test("LispAtom.isLispFragment() Test", function () {
 		try {
 			chai.assert.isTrue(satom.isLispFragment());
 		}
 		catch (err) {
-			chai.assert.fail("This was not recocognized as a valid ILispFragment");
+			chai.assert.fail(`This was not recocognized as a valid ILispFragment ${err}`);
 		}
 	});
 
@@ -24,7 +24,7 @@ suite("LispAtom Tests", function () {
 			chai.assert.isTrue(satom.equal(satom));
 		}
 		catch (err) {
-			chai.assert.fail("The same atom was used for both references, this should be true");
+			chai.assert.fail(`The same atom was used for both references, this should be true ${err}`);
 		}
 	});
 	test("NOT LispAtom.equal() Test", function () {
@@ -32,62 +32,62 @@ suite("LispAtom Tests", function () {
 			chai.assert.isNotTrue(lparen.equal(rparen));
 		}
 		catch (err) {
-			chai.assert.fail("These 2 atoms were nearly identical, but were different characters");
+			chai.assert.fail(`These 2 atoms were nearly identical, but were different characters ${err}`);
 		}
 	});
 
 
 	test("LispAtom.getRange() Single-Line Test", function () {
 		const r = satom.getRange();
-		let start, end;	
+		let start, end;
 		try {
 			start = r.start.line === 32 && r.start.character === 5;
 			end = r.end.line === 32 && r.end.character === 23;
 			chai.assert.isTrue(start && end);
 		}
 		catch (err) {
-			chai.assert.fail(`The start test was ${start} and the end test was ${end}`);
+			chai.assert.fail(`The start test was ${start} and the end test was ${end}\n${err}`);
 		}
 	});
 	test("LispAtom.getRange() Multi-Line Test", function () {
 		const r = matom.getRange();
-		let start, end;		
+		let start, end;
 		try {
 			start = r.start.line === 83 && r.start.character === 8;
 			end = r.end.line === 85 && r.end.character === 11;
 			chai.assert.isTrue(start && end);
 		}
 		catch (err) {
-			chai.assert.fail(`The start test was ${start} and the end test was ${end}`);
+			chai.assert.fail(`The start test was ${start} and the end test was ${end}\n${err}`);
 		}
 	});
 
 
-	test("LispAtom.contains() Test", function () {		
+	test("LispAtom.contains() Test", function () {
 		const fail = new Position(83, 4);
 		const start = new Position(83, 8);
 		const middle = new Position(84, 3);
 		const end = new Position(85, 11);
-		try {			
+		try {
 			chai.assert.isTrue(matom.contains(start));
 			chai.assert.isTrue(matom.contains(middle));
 			chai.assert.isTrue(matom.contains(end));
 			chai.assert.isNotTrue(matom.contains(fail));
 		}
 		catch (err) {
-			chai.assert.fail('At least 1 of 4 Positional tests failed the contains test');
+			chai.assert.fail(`At least 1 of 4 Positional tests failed the contains test ${err}`);
 		}
 	});
 
 
 	test("LispAtom.isComment() Test", function () {
 		try {
-			chai.assert.isTrue(catom.isComment());			
-			chai.assert.isTrue(matom.isComment());	
+			chai.assert.isTrue(catom.isComment());
+			chai.assert.isTrue(matom.isComment());
 			chai.assert.isNotTrue(satom.isComment());
 		}
 		catch (err) {
-			chai.assert.fail('The test for IsComment() was checked both directions and one failed');
+			chai.assert.fail(`The test for IsComment() was checked both directions and one failed ${err}`);
 		}
 	});
 	test("LispAtom.isComment() & isLineComment() Test", function () {
@@ -97,7 +97,7 @@ suite("LispAtom Tests", function () {
 			chai.assert.isNotTrue(satom.isLineComment());
 		}
 		catch (err) {
-			chai.assert.fail('The test for isLineComment() was checked both directions and one failed');
+			chai.assert.fail(`The test for isLineComment() was checked both directions and one failed ${err}`);
 		}
 	});
 
@@ -108,7 +108,7 @@ suite("LispAtom Tests", function () {
 			chai.assert.isNotTrue(rparen.isLeftParen());
 		}
 		catch (err) {
-			chai.assert.fail('The test for isLeftParen() was checked both directions and one failed');
+			chai.assert.fail(`The test for isLeftParen() was checked both directions and one failed ${err}`);
 		}
 	});
 	test("LispAtom.IsRightParen() Test", function () {
@@ -117,7 +117,7 @@ suite("LispAtom Tests", function () {
 			chai.assert.isNotTrue(lparen.isRightParen());
 		}
 		catch (err) {
-			chai.assert.fail('The test for isRightParen() was checked both directions and one failed');
+			chai.assert.fail(`The test for isRightParen() was checked both directions and one failed ${err}`);
 		}
 	});
 
@@ -128,10 +128,10 @@ suite("LispAtom Tests", function () {
 			chai.assert.equal(lparen.length(), 1);
 		}
 		catch (err) {
-			chai.assert.fail('The test for length() did not return the expected symbol string length');
+			chai.assert.fail(`The test for length() did not return the expected symbol string length ${err}`);
 		}
 	});
-		
+
 
 	test("LispAtom.symbLine() Test", function () {
 		try {
@@ -140,9 +140,9 @@ suite("LispAtom Tests", function () {
 			chai.assert.equal(matom.symbLine(false), 83);
 		}
 		catch (err) {
-			chai.assert.fail('The test for symbLine() did not return the expected line numbers');
+			chai.assert.fail(`The test for symbLine() did not return the expected line numbers ${err}`);
 		}
 	});
-	
+
 
 });

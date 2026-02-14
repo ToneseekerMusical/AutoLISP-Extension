@@ -635,6 +635,7 @@
     "chai": "^6.2.2",
     "del": "^8.0.1",
     "eslint": "^9.39.2",
+    "eslint-plugin-chai-friendly": "^1.1.0",
     "event-stream": "^4.0.1",
     "glob": "^13.0.2",
     "gulp": "^5.0.1",

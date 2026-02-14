@@ -3,15 +3,15 @@ import { CursorPosition, ListReader } from '../format/listreader';
 import { Sexpression } from '../astObjects/sexpression';
 import { ProjectDefinition } from './projectDefinition';
 import { CheckUnsavedChanges } from './checkUnsavedChanges';
-import { AutoLispExt } from '../context';
+//import { AutoLispExt } from '../context';
 import * as vscode from 'vscode'
 import * as path from 'path'
 import { ReadonlyDocument } from './readOnlyDocument';
 
 import * as nls from 'vscode-nls';
-const localize = nls.loadMessageBundle();
-const fs = require('fs');
+//import * as fs from 'fs';
 import * as os from 'os';
+const localize = nls.loadMessageBundle();
 
 export async function OpenProject() {
 	try {
@@ -19,17 +19,17 @@ export async function OpenProject() {
 			return;
 		}
 
-		let prjUri = await SelectProjectFile();
+		const prjUri = await SelectProjectFile();
 		if (!prjUri)
 			return;
 
-		let prjPathUpper = prjUri.fsPath.toUpperCase();
+		const prjPathUpper = prjUri.fsPath.toUpperCase();
 		if (prjPathUpper.endsWith(".PRJ") == false) {
-			let msg = localize("autolispext.project.openproject.onlyprjallowed", "Only PRJ files are allowed.");
+			const msg = localize("autolispext.project.openproject.onlyprjallowed", "Only PRJ files are allowed.");
 			return Promise.reject(msg);
 		}
 
-		let prjNode = OpenProjectFile(prjUri);
+		const prjNode = OpenProjectFile(prjUri);
 		return Promise.resolve(prjNode);
 	}
 	catch (e) {
@@ -38,15 +38,15 @@ export async function OpenProject() {
 }
 
 export function OpenProjectFile(prjUri: vscode.Uri): ProjectNode {
-	let document = ReadonlyDocument.open(prjUri.fsPath);
+	const document = ReadonlyDocument.open(prjUri.fsPath);
 	if (!document) {
-		let msg = localize("autolispext.project.openproject.readfailed", "Can't read project file: ");
+		const msg = localize("autolispext.project.openproject.readfailed", "Can't read project file: ");
 		throw new Error(msg + prjUri.fsPath);
 	}
 
-	let ret = ParseProjectDocument(prjUri.fsPath, document);
+	const ret = ParseProjectDocument(prjUri.fsPath, document);
 	if (!ret) {
-		let msg = localize("autolispext.project.openproject.malformedfile", "Malformed project file: ");
+		const msg = localize("autolispext.project.openproject.malformedfile", "Malformed project file: ");
 		throw new Error(msg + prjUri.fsPath);
 	}
 
@@ -54,7 +54,7 @@ export function OpenProjectFile(prjUri: vscode.Uri): ProjectNode {
 }
 
 async function SelectProjectFile() {
-	let label = localize("autolispext.project.openproject.label", "Open Project");
+	const label = localize("autolispext.project.openproject.label", "Open Project");
 	const filterDesc = localize("autolispext.project.openproject.projectfilter", "AutoLISP Project Files");
 	const options: vscode.OpenDialogOptions = {
 		canSelectMany: false,
@@ -63,12 +63,12 @@ async function SelectProjectFile() {
 	};
 	options.filters[filterDesc] = ['prj'];
 
-	let fileUri = await vscode.window.showOpenDialog(options);
+	const fileUri = await vscode.window.showOpenDialog(options);
 	if (fileUri && fileUri.length > 0) {
 		if (path.basename(fileUri[0].fsPath).indexOf(' ') === -1) {
 			return Promise.resolve(fileUri[0]);
 		} else {
-			let msg = localize("autolispext.project.openproject.nospaces", "Legacy PRJ naming rules do not allow spaces");
+			const msg = localize("autolispext.project.openproject.nospaces", "Legacy PRJ naming rules do not allow spaces");
 			return Promise.reject(msg);
 		}
 	} else {
@@ -79,13 +79,13 @@ async function SelectProjectFile() {
 
 function ParseProjectDocument(prjPath: string, document: vscode.TextDocument): ProjectNode {
 
-	let readerStartPos = new CursorPosition();
+	const readerStartPos = new CursorPosition();
 	readerStartPos.offsetInSelection = 0; //the start position in sexpr is 0
 	readerStartPos.offsetInDocument = 0; //the start position in doc
-	let reader = new ListReader(document.getText(), readerStartPos, document);
+	const reader = new ListReader(document.getText(), readerStartPos, document);
 
-	let lispLists = reader.tokenize();
-	let atomCount = lispLists.atoms.length;
+	const lispLists = reader.tokenize();
+	const atomCount = lispLists.atoms.length;
 	if ((!lispLists) || (!lispLists.atoms) || (atomCount < 2))
 		return undefined;
 
@@ -93,10 +93,10 @@ function ParseProjectDocument(prjPath: string, document: vscode.TextDocument): P
 	let index = IndexOfProjectList(lispLists);
 	if (index < 0)
 		return undefined;
-	let vlspPrjList = lispLists.atoms[index] as Sexpression;
+	const vlspPrjList = lispLists.atoms[index] as Sexpression;
 
 	//parse project metadata
-	let prjMetaData = ProjectDefinition.Create(vlspPrjList);
+	const prjMetaData = ProjectDefinition.Create(vlspPrjList);
 	if (IsValidProjectExpression(prjMetaData) == false)
 		return undefined; //its content is not valid
 
@@ -104,10 +104,10 @@ function ParseProjectDocument(prjPath: string, document: vscode.TextDocument): P
 	index = IndexOfSourceList(vlspPrjList);
 	if (index < 0)//if there's no source file, we should at least get a "nil" string
 		return undefined;
-	let srcFileExpr = vlspPrjList.atoms[index];
+	const srcFileExpr = vlspPrjList.atoms[index];
 
 	//create the project node
-	let root = new ProjectNode();
+	const root = new ProjectNode();
 	root.projectName = prjMetaData.Name;
 	root.projectFilePath = prjPath;
 	root.projectDirectory = path.dirname(prjPath);
@@ -115,11 +115,11 @@ function ParseProjectDocument(prjPath: string, document: vscode.TextDocument): P
 	root.projectMetadata = prjMetaData;
 
 	if (srcFileExpr instanceof Sexpression) {
-		let fileList = srcFileExpr as Sexpression;
+		const fileList = srcFileExpr as Sexpression;
 
 		//create source file nodes
 		for (let j = 1; j < (fileList.atoms.length - 1); j++) {
-			let fileName = Convert2AbsoluteLspFilePath(fileList.atoms[j].symbol, root.projectDirectory);
+			const fileName = Convert2AbsoluteLspFilePath(fileList.atoms[j].symbol, root.projectDirectory);
 			if (!fileName)
 				return undefined;
 
@@ -134,7 +134,7 @@ function ParseProjectDocument(prjPath: string, document: vscode.TextDocument): P
 }
 
 function IndexOfSourceList(prjExpr: Sexpression): number {
-	let atomsCount = prjExpr.atoms.length;
+	const atomsCount = prjExpr.atoms.length;
 	for (let i = 0; i < atomsCount; i++) {
 		if (prjExpr.atoms[i].symbol.toUpperCase() != ProjectDefinition.key_own_list)
 			continue;
@@ -151,14 +151,14 @@ function IndexOfSourceList(prjExpr: Sexpression): number {
 }
 
 function IndexOfProjectList(rootExpr: Sexpression): number {
-	let atomsCount = rootExpr.atoms.length;
+	const atomsCount = rootExpr.atoms.length;
 
 	for (let i = 0; i < atomsCount; i++) {
 		//find for the VLISP-PROJECT-LIST expression
 		if (rootExpr.atoms[i] == null) continue;
 		if (!(rootExpr.atoms[i] instanceof Sexpression)) continue;
 
-		let vlspPrjList = rootExpr.atoms[i] as Sexpression;
+		const vlspPrjList = rootExpr.atoms[i] as Sexpression;
 
 		if (vlspPrjList.atoms.length < 2)
 			continue;
@@ -175,13 +175,13 @@ function IndexOfProjectList(rootExpr: Sexpression): number {
 
 function Convert2AbsoluteLspFilePath(fileName: string, prjDir: string): string {
 	//remove the starting and ending "
-	if (fileName.startsWith('\"') == false)
+	if (fileName.startsWith('"') == false)
 		return undefined;
 
-	if (fileName.endsWith('\"') == false)
+	if (fileName.endsWith('"') == false)
 		return undefined;
 
-	fileName = fileName.substring(1, fileName.length - 2);
+	fileName = fileName.substring(1, fileName.length - 1);
 
 	//make sure it's absolute path
 	if (isAbsolutePath(fileName) == false)
@@ -196,7 +196,7 @@ function Convert2AbsoluteLspFilePath(fileName: string, prjDir: string): string {
 	return fileName;
 }
 
-let platform = os.type();
+const platform = os.type();
 
 function isAbsolutePath(fileName: string): boolean {
 	if (path.isAbsolute(fileName))
@@ -207,8 +207,8 @@ function isAbsolutePath(fileName: string): boolean {
 		if (fileName.length < 3)
 			return false;
 
-		let char2 = fileName.charAt(1);
-		let char3 = fileName.charAt(2);
+		const char2 = fileName.charAt(1);
+		const char3 = fileName.charAt(2);
 
 		if ((char2 == ':') && (char3 == '\\'))
 			return true;
@@ -220,7 +220,7 @@ function isAbsolutePath(fileName: string): boolean {
 	return false;
 }
 
-function IsValidProjectExpression(metaData: ProjectDefinition): Boolean {
+function IsValidProjectExpression(metaData: ProjectDefinition): boolean {
 	if (!metaData)
 		return false;
 

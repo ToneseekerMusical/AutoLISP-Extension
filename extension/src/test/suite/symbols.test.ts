@@ -7,7 +7,7 @@ import { SymbolManager, IRootSymbolHost, ISymbolHost, ISymbolReference } from '.
 let roDoc: ReadonlyDocument;
 let symbolMap: IRootSymbolHost;
 
-suite("SymbolManager & Object Method Tests", function () {	
+suite("SymbolManager & Object Method Tests", function () {
 
 
 	suiteSetup(() => {
@@ -18,25 +18,22 @@ suite("SymbolManager & Object Method Tests", function () {
 			symbolMap = SymbolManager.getSymbolMap(roDoc, true);
 			symbolMap = SymbolManager.getSymbolMap(roDoc);
 			expect(symbolMap.items.length).to.be.at.least(10);
-		} catch (error) {
-			assert.fail("Failed to initialize shared suite data sources");
+		} catch (err) {
+			assert.fail(`Failed to initialize shared suite data sources\n${err}`);
 		}
 	});
 
 	suiteTeardown(() => {
 		try {
-			expect(symbolMap.isValid).to.equal(true);	
+			expect(symbolMap.isValid).to.equal(true);
 			SymbolManager.invalidateSymbolMapCache();
-			expect(symbolMap.isValid).to.equal(false);	
-		} catch (error) {
-			assert.fail("Failed to dispose known Symbol Map");
+			expect(symbolMap.isValid).to.equal(false);
+		} catch (err) {
+			assert.fail(`Failed to dispose known Symbol Map\n${err}`);
 		}
 	});
 
-
-
-
-	test("NamedSymbolReference - Property Expectation", function () {	
+	test("NamedSymbolReference - Property Expectation", function () {
 		try {
 			const sut = symbolMap.items[0].asHost.named;
 			expect(sut.asHost).to.equal(null);
@@ -46,16 +43,16 @@ suite("SymbolManager & Object Method Tests", function () {
 			expect(sut.hasId).to.equal(true);
 			expect(sut.id).to.equal("c:whatever");
 			expect(sut.isDefinition).to.equal(true);
-			expect(sut.isLocalization).to.equal(false);			
+			expect(sut.isLocalization).to.equal(false);
 			expect(sut.parent.parent).to.equal(symbolMap);
 			expect(sut.range.start.line).to.equal(13);
 		}
 		catch (err) {
-			assert.fail("At least one of the various properties initialized to unexpected results");
+			assert.fail(`At least one of the various properties initialized to unexpected results\n${err}`);
 		}
 	});
 
-	test("NamedSymbolHost - Property Expectation", function () {	
+	test("NamedSymbolHost - Property Expectation", function () {
 		try {
 			const sut = symbolMap.items[0].asHost;
 			expect(sut.asHost).to.equal(sut);
@@ -69,11 +66,11 @@ suite("SymbolManager & Object Method Tests", function () {
 			expect(sut.range.start.line).to.equal(13);
 		}
 		catch (err) {
-			assert.fail("At least one of the various properties initialized to unexpected results");
+			assert.fail(`At least one of the various properties initialized to unexpected results\n${err}`);
 		}
 	});
 
-	test("AnonymousSymbolHost - Property Expectation", function () {	
+	test("AnonymousSymbolHost - Property Expectation", function () {
 		try {
 			const sut = symbolMap as ISymbolHost;
 			expect(sut.asHost).to.equal(sut);
@@ -87,14 +84,11 @@ suite("SymbolManager & Object Method Tests", function () {
 			expect(sut.range.start.line).to.equal(3);
 		}
 		catch (err) {
-			assert.fail("At least one of the various properties initialized to unexpected results");
+			assert.fail(`At least one of the various properties initialized to unexpected results\n${err}`);
 		}
 	});
 
-
-
-
-	test("ISymbolBase.equal() - complete sub-type coverage test", function () {	
+	test("ISymbolBase.equal() - complete sub-type coverage test", function () {
 		try {
 			const nHost = symbolMap.items[0].asHost;
 			const nRef = symbolMap.items[0].asHost.named;
@@ -105,91 +99,82 @@ suite("SymbolManager & Object Method Tests", function () {
 			expect(nRef.equal(nHost)).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("Failed to yield expected truthy results");
+			assert.fail(`Failed to yield expected truthy results\n${err}`);
 		}
 	});
 
-
-
-
-	test("ISymbolReference.findLocalizingParent() - using localized symbol", function () {	
+	test("ISymbolReference.findLocalizingParent() - using localized symbol", function () {
 		try {
 			const sut = symbolMap.items[0].asHost.items[7].asReference;
 			const result = sut.findLocalizingParent();
 			expect(result).to.equal(symbolMap.items[0]);
 		}
 		catch (err) {
-			assert.fail("Failed to pull symbol map");
+			assert.fail(`Failed to pull symbol map\n${err}`);
 		}
 	});
 
-	test("ISymbolReference.findLocalizingParent() - using globalized symbol", function () {	
+	test("ISymbolReference.findLocalizingParent() - using globalized symbol", function () {
 		try {
 			const sut = symbolMap.items[0].asHost.items[4].asReference;
 			const result = sut.findLocalizingParent();
 			expect(result).to.equal(symbolMap);
 		}
 		catch (err) {
-			assert.fail("Failed to pull symbol map");
+			assert.fail(`Failed to pull symbol map\n${err}`);
 		}
 	});
 
-
-
-
-	test("ISymbolHost.findLocalizingParent() - using NamedSymbolHost with localized name", function () {	
+	test("ISymbolHost.findLocalizingParent() - using NamedSymbolHost with localized name", function () {
 		try {
 			const sut = symbolMap.items[0].asHost;
 			const result = sut.findLocalizingParent('gv:field0');
 			expect(result).to.equal(symbolMap.items[0]);
 		}
 		catch (err) {
-			assert.fail("Failed to pull symbol map");
+			assert.fail(`Failed to pull symbol map\n${err}`);
 		}
 	});
 
-	test("ISymbolHost.findLocalizingParent() - using NamedSymbolHost with global name", function () {	
+	test("ISymbolHost.findLocalizingParent() - using NamedSymbolHost with global name", function () {
 		try {
 			const sut = symbolMap.items[0].asHost;
 			const result = sut.findLocalizingParent('gv:field1');
 			expect(result).to.equal(symbolMap);
 		}
 		catch (err) {
-			assert.fail("Failed to pull symbol map");
+			assert.fail(`Failed to pull symbol map\n${err}`);
 		}
 	});
-
-
-
 
 	test("IRootSymbolHost.collectAllSymbols() - verify effective accumulation", function () {
 		try {
 			const sut = symbolMap.collectAllSymbols();
 
 			[
-				{id: 'c:whatever', count: 1},
-				{id: 'a', count: 3},
-				{id: 'b', count: 1},
-				{id: 'gv:field0', count: 2},
-				{id: 'gv:field1', count: 2},
-				{id: 'c', count: 1},
-				{id: 'c:stuffandthings', count: 1},
-				{id: 'c:stuff&things', count: 1},
-				{id: 'c:dostuff', count: 1},
-				{id: 'gv:field2', count: 2},
-				{id: 'gv:field3', count: 1},
-				{id: 'gv:field4', count: 1},
-				{id: 'gv:field5', count: 1}
+				{ id: 'c:whatever', count: 1 },
+				{ id: 'a', count: 3 },
+				{ id: 'b', count: 1 },
+				{ id: 'gv:field0', count: 2 },
+				{ id: 'gv:field1', count: 2 },
+				{ id: 'c', count: 1 },
+				{ id: 'c:stuffandthings', count: 1 },
+				{ id: 'c:stuff&things', count: 1 },
+				{ id: 'c:dostuff', count: 1 },
+				{ id: 'gv:field2', count: 2 },
+				{ id: 'gv:field3', count: 1 },
+				{ id: 'gv:field4', count: 1 },
+				{ id: 'gv:field5', count: 1 }
 			].forEach(entry => {
 				expect(sut.get(entry.id).length).to.equal(entry.count);
 			});
 		}
 		catch (err) {
-			assert.fail("Failed to pull symbol map");
+			assert.fail(`Failed to pull symbol map\n${err}`);
 		}
 	});
 
-	test("IRootSymbolHost.collectAllSymbols() - provided vs generated symbol collection Map<>", function () {	
+	test("IRootSymbolHost.collectAllSymbols() - provided vs generated symbol collection Map<>", function () {
 		try {
 			// Note: this needs to match because it indirectly proves out the ability to aggregate multiple
 			//		 document LispContainers into a single (provided) summary Map<> when necessary.
@@ -209,9 +194,7 @@ suite("SymbolManager & Object Method Tests", function () {
 			}
 		}
 		catch (err) {
-			assert.fail("Failed to pull symbol map");
+			assert.fail(`Failed to pull symbol map\n${err}`);
 		}
 	});
-
-
 });

@@ -14,8 +14,8 @@ suite("Parsing: Shared Tests", function () {
 		try {
 			windowsDoc = ReadonlyDocument.createMemoryDocument('(defun someFunc ()\r\n\t(command ".line" pause pause)\r\n\t(princ)\r\n)', 'autolisp');
 			linuxDoc = ReadonlyDocument.createMemoryDocument('(defun someFunc ()\n\t(command ".line" pause pause)\n\t(princ)\n)', 'autolisp');
-		} catch (error) {
-			assert.fail("Failed to initialize shared suite data sources");
+		} catch (err) {
+			assert.fail(`Failed to initialize shared suite data sources\n${err}`);
 		}
 	});
 
@@ -28,7 +28,7 @@ suite("Parsing: Shared Tests", function () {
 			expect(sut).to.equal('\r\n');
 		}
 		catch (err) {
-			assert.fail("Expected CRLF, but got something else");
+			assert.fail(`Expected CRLF, but got something else\n${err}`);
 		}
 	});
 
@@ -38,7 +38,7 @@ suite("Parsing: Shared Tests", function () {
 			expect(sut).to.equal('\r\n');
 		}
 		catch (err) {
-			assert.fail("Expected LF, but got something else");
+			assert.fail(`Expected LF, but got something else\n${err}`);
 		}
 	});
 
@@ -51,7 +51,7 @@ suite("Parsing: Shared Tests", function () {
 			expect(sut).to.equal('\n');
 		}
 		catch (err) {
-			assert.fail("Expected CRLF, but got something else");
+			assert.fail(`Expected CRLF, but got something else\n${err}`);
 		}
 	});
 
@@ -61,7 +61,7 @@ suite("Parsing: Shared Tests", function () {
 			expect(sut).to.equal('\r\n');
 		}
 		catch (err) {
-			assert.fail("Expected CRLF, but got something else");
+			assert.fail(`Expected CRLF, but got something else\n${err}`);
 		}
 	});
 

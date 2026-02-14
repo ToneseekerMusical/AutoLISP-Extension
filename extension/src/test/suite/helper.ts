@@ -6,19 +6,20 @@ export async function sleep(ms: number) {
 }
 
 //usage of this princ is princ({str}) which will pass an object instead of value only
-export function princ(str : any){
-	var name = Object.keys(str)[0];
-    var value = str[name];
+//eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function princ(str: any) {
+	const name = Object.keys(str)[0];
+	const value = str[name];
 	console.log(`-----the ${name} is ${value.toString()}-----`);
 }
 //This method is to read a file and return the vscode.TextDocument object 
-export async function readFile2TextDocument(filepath: string) : Promise<vscode.TextDocument | undefined> {
-	let doc : vscode.TextDocument;
+export async function readFile2TextDocument(filepath: string): Promise<vscode.TextDocument | undefined> {
+	let doc: vscode.TextDocument;
 	try {
-        doc = await vscode.workspace.openTextDocument(filepath);
-        return doc;
-      } catch (error) {
-		  console.log(error);
-        return undefined;
-      }
+		doc = await vscode.workspace.openTextDocument(filepath);
+		return doc;
+	} catch (error) {
+		console.log(error);
+		return undefined;
+	}
 }

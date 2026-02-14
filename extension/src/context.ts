@@ -2,12 +2,12 @@ import * as vscode from "vscode";
 import * as resources from "./resources";
 import { Disposable } from 'vscode-languageclient';
 import { DocumentManager } from './documents';
-import {DocumentServices} from "./services/documentServices";
+import { Selectors } from "./services/documentServices";
 import { WebHelpLibrarySingleton } from './help/documentationLibrary';
 
 let _instance: ContextManager;
 
-export class ContextManager{
+export class ContextManager {
 	private _ctx: vscode.ExtensionContext;
 	private _docManager: DocumentManager;
 	private _init: boolean;
@@ -24,37 +24,37 @@ export class ContextManager{
 		}
 		return _instance = new ContextManager();
 	}
-	
-	get Context(): vscode.ExtensionContext { 
-		return this._ctx; 
+
+	get Context(): vscode.ExtensionContext {
+		return this._ctx;
 	}
-	get Documents(): DocumentManager { 
+	get Documents(): DocumentManager {
 		return this._docManager;
 	}
-	get Selectors(): typeof DocumentServices.Selectors {
-		return DocumentServices.Selectors;
+	get Selectors(): typeof Selectors {
+		return Selectors;
 	}
-	get AllSelectors(): string[] { 
-		return [DocumentServices.Selectors.LSP, DocumentServices.Selectors.DCL, DocumentServices.Selectors.PRJ];
+	get AllSelectors(): string[] {
+		return [Selectors.LSP, Selectors.DCL, Selectors.PRJ];
 	}
 	get Subscriptions(): Disposable[] {
-		if (this._temp.length > 0 && this._ctx){
+		if (this._temp.length > 0 && this._ctx) {
 			this._ctx.subscriptions.push(...this._temp);
 			this._temp.length = 0;
 		}
 		return this._ctx ? this._ctx.subscriptions : this._temp;
 	}
-	get ExtPath(): string { 
-		return this._ctx ? this._ctx.extensionPath : ""; 
+	get ExtPath(): string {
+		return this._ctx ? this._ctx.extensionPath : "";
 	}
-	get Resources() { 
+	get Resources() {
 		return resources;
 	}
 	get WebHelpLibrary() {
 		return WebHelpLibrarySingleton.Instance;
 	}
 
-	
+
 	initialize(context: vscode.ExtensionContext): void {
 		if (!this._init) {
 			this._ctx = context;

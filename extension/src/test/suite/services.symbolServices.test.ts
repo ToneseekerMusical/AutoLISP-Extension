@@ -11,7 +11,7 @@ let symbolMap: IRootSymbolHost;
 let flatView: Array<LispAtom>;
 
 suite("Analysis Support: SymbolServices Tests", function () {
-	
+
 
 	suiteSetup(() => {
 		try {
@@ -23,102 +23,102 @@ suite("Analysis Support: SymbolServices Tests", function () {
 			symbolMap = SymbolManager.getSymbolMap(roDoc);
 			// flatView - used on all other tests because it is more efficient
 			flatView = roDoc.documentContainer.flatten();
-		} catch (error) {
-			assert.fail("Failed to initialize shared suite data sources");
+		} catch (err) {
+			assert.fail(`Failed to initialize shared suite data sources\n${err}`);
 		}
 	});
 
 
 
 
-	test("isNative() test on Known & Unknown symbols", function () {	
+	test("isNative() test on Known & Unknown symbols", function () {
 		try {
 			expect(SymbolServices.isNative('command')).to.equal(true);
 			expect(SymbolServices.isNative('COMMAND')).to.equal(false);
 			expect(SymbolServices.isNative('xyz')).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("Values known to be or not be native AutoLisp symbols returned unexpected results");
+			assert.fail(`Values known to be or not be native AutoLisp symbols returned unexpected results\n${err}`);
 		}
 	});
 
 
 
 
-	test("hasGlobalFlag() - Defun exported by multi-line block tag", function () {	
+	test("hasGlobalFlag() - Defun exported by multi-line block tag", function () {
 		try {
 			const target = symbolMap.items[0].asHost.named;
 			const result = SymbolServices.hasGlobalFlag(roDoc, target);
 			expect(result).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known @Global ISymbolReference should not have returned false");
+			assert.fail(`A known @Global ISymbolReference should not have returned false\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - Defun exported by single block tag", function () {	
+	test("hasGlobalFlag() - Defun exported by single block tag", function () {
 		try {
 			const target = symbolMap.items[1].asHost.named;
 			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known @Global ISymbolReference should not have returned false");
+			assert.fail(`A known @Global ISymbolReference should not have returned false\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - Defun exported by inline tag", function () {	
+	test("hasGlobalFlag() - Defun exported by inline tag", function () {
 		try {
 			const target = symbolMap.items[2].asHost.named;
 			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known @Global ISymbolReference should not have returned false");
+			assert.fail(`A known @Global ISymbolReference should not have returned false\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - Defun commented but not exported", function () {	
+	test("hasGlobalFlag() - Defun commented but not exported", function () {
 		try {
 			const target = symbolMap.items[3].asHost.named;
 			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("A known non-@Global ISymbolReference should not have returned true");
+			assert.fail(`A known non-@Global ISymbolReference should not have returned true\n${err}`);
 		}
 	});
 
 
 
 
-	test("hasGlobalFlag() - Nested Setq tagged to export but localized", function () {	
+	test("hasGlobalFlag() - Nested Setq tagged to export but localized", function () {
 		try {
 			// this atom is technically localized by the defun, which nullifies the @Global comment.
 			// However, this is not the point where the program understands that. The RenameProvider
 			// will directly handle that level of due diligence verification for edge cases.
 			const target = symbolMap.items[0].asHost.items[3];
 			// npm run test ERROR
-			const result = SymbolServices.hasGlobalFlag(flatView, target);			
+			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known @Global ISymbolReference should not have returned false");
+			assert.fail(`A known @Global ISymbolReference should not have returned false\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - Nested Setq exported inline and not localized", function () {	
+	test("hasGlobalFlag() - Nested Setq exported inline and not localized", function () {
 		try {
 			const target = symbolMap.items[0].asHost.items[4];
 			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("A known @Global ISymbolReference should not have returned false");
+			assert.fail(`A known @Global ISymbolReference should not have returned false\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - Nested Setq localized not export tagged", function () {	
+	test("hasGlobalFlag() - Nested Setq localized not export tagged", function () {
 		try {
 			const target = symbolMap.items[0].asHost.items[5];
 			// npm run test ERROR
@@ -126,29 +126,29 @@ suite("Analysis Support: SymbolServices Tests", function () {
 			expect(result).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("A known non-@Global ISymbolReference should not have returned true");
+			assert.fail(`A known non-@Global ISymbolReference should not have returned true\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - Nested Setq not localized or export tagged", function () {	
+	test("hasGlobalFlag() - Nested Setq not localized or export tagged", function () {
 		try {
 			const target = symbolMap.items[0].asHost.items[6];
 			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("A known non-@Global ISymbolReference should not have returned true");
+			assert.fail(`A known non-@Global ISymbolReference should not have returned true\n${err}`);
 		}
 	});
 
-	test("hasGlobalFlag() - using SymbolHost as invalid argument", function () {	
+	test("hasGlobalFlag() - using SymbolHost as invalid argument", function () {
 		try {
 			const target = symbolMap.items[0];
 			const result = SymbolServices.hasGlobalFlag(flatView, target);
 			expect(result).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("A known invalid ISymbolReference should not have returned true");
+			assert.fail(`A known invalid ISymbolReference should not have returned true\n${err}`);
 		}
 	});
 

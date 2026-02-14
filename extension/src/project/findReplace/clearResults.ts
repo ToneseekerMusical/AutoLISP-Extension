@@ -13,7 +13,7 @@ export function clearSearchResultWithError(err) {
     try {
         SearchTreeProvider.instance.clear();
 
-        let summary = new SummaryNode();
+        const summary = new SummaryNode();
         summary.summary = err;
         summary.makeTooltip(SearchTreeProvider.instance.lastSearchOption, null);
 
@@ -31,7 +31,7 @@ let isSearching: boolean = false;
 //this method is expected to never throw error, as it will be the first method to call in many use cases
 export function getWarnIsSearching(): boolean {
     if (isSearching) {
-        let msg = localize("autolispext.project.findReplace.clearresults.issearching", "A search is in progress, wait until the current search has completed and try again.");
+        const msg = localize("autolispext.project.findReplace.clearresults.issearching", "A search is in progress, wait until the current search has completed and try again.");
         vscode.window.showInformationMessage(msg);
         return true;
     }

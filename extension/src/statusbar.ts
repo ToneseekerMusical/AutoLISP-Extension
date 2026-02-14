@@ -5,15 +5,15 @@ import * as nls from 'vscode-nls';
 const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export function registerLoadLispButton(context: vscode.ExtensionContext) {
-	let lspLoadButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
-	let title = localize("autolispext.loadlisp.title", "Load lisp");
+	const lspLoadButton = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left);
+	const title = localize("autolispext.loadlisp.title", "Load lisp");
 	lspLoadButton.text = "📄" + title;
 	lspLoadButton.color = 'white';
 	lspLoadButton.tooltip = localize("autolispext.loadlisp.tooltip", "Load the Current File");
 	lspLoadButton.command = "autolisp.loadActiveFile";
 	lspLoadButton.show();
 	context.subscriptions.push(vscode.commands.registerCommand("autolisp.loadActiveFile", () => {
-		let currentLSPDoc = vscode.window.activeTextEditor.document.fileName;
+		const currentLSPDoc = vscode.window.activeTextEditor.document.fileName;
 		if(isSupportedLispFile(currentLSPDoc)) {
 			//execute load progress 
 			if (vscode.debug.activeDebugSession !== undefined) {
@@ -23,7 +23,7 @@ export function registerLoadLispButton(context: vscode.ExtensionContext) {
 				vscode.window.showErrorMessage(message);
 			}
 		} else {
-			let platform = os.type();
+			const platform = os.type();
 			if(platform === 'Windows_NT'){
 				const message = localize("autolispext.loadlisp.fileformat.win", "This file format isn’t supported. Activate a window containing a DCL, LSP, or MNL file.");
 				vscode.window.showErrorMessage(message);
@@ -39,7 +39,7 @@ export function registerLoadLispButton(context: vscode.ExtensionContext) {
 			// this test resolves a non-breaking error when manually running npm test scripts from command line
 			return;
 		}
-		let currentLSPDoc = vscode.window.activeTextEditor.document.fileName;
+		const currentLSPDoc = vscode.window.activeTextEditor.document.fileName;
 		if(isSupportedLispFile(currentLSPDoc)) {
 			lspLoadButton.show();
 		} else {

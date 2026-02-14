@@ -5,45 +5,47 @@ import * as nls from 'vscode-nls';
 const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 export function registerDocumentFormatter() {
-    vscode.languages.registerDocumentFormattingEditProvider(['autolisp', 'lisp'], {
-        provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-            let activeTextEditor = vscode.window.activeTextEditor;
-            if (activeTextEditor == undefined)
-                return [];
-            let currentLSPDoc = activeTextEditor.document.fileName;
-            let ext = currentLSPDoc.substring(currentLSPDoc.length - 4, currentLSPDoc.length).toUpperCase();
-            if (ext === ".DCL") {
-                let msg = localize("autolispext.format.notsupport.dcl", "Command doesn't support DCL files.");
-                vscode.window.showInformationMessage(msg);
-                return [];
-            }
+	vscode.languages.registerDocumentFormattingEditProvider(['autolisp', 'lisp'], {
+		//eslint-disable-next-line
+		provideDocumentFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
+			const activeTextEditor = vscode.window.activeTextEditor;
+			if (activeTextEditor == undefined)
+				return [];
+			const currentLSPDoc = activeTextEditor.document.fileName;
+			const ext = currentLSPDoc.substring(currentLSPDoc.length - 4, currentLSPDoc.length).toUpperCase();
+			if (ext === ".DCL") {
+				const msg = localize("autolispext.format.notsupport.dcl", "Command doesn't support DCL files.");
+				vscode.window.showInformationMessage(msg);
+				return [];
+			}
 
-            let fmt = LispFormatter.format(activeTextEditor.document, null);
-            return [vscode.TextEdit.replace(utils.getFullDocRange(activeTextEditor), fmt)];
-        }
-    });
+			const fmt = LispFormatter.format(activeTextEditor.document, null);
+			return [vscode.TextEdit.replace(utils.getFullDocRange(activeTextEditor), fmt)];
+		}
+	});
 }
 
 export function registeSelectionFormatter() {
-    vscode.languages.registerDocumentRangeFormattingEditProvider(['autolisp', 'lisp'], {
-        provideDocumentRangeFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
-            let activeTextEditor = vscode.window.activeTextEditor;
-            if (activeTextEditor == undefined)
-                return [];
-            let currentLSPDoc = activeTextEditor.document.fileName;
-            let ext = currentLSPDoc.substring(currentLSPDoc.length - 4, currentLSPDoc.length).toUpperCase();
-            if (ext === ".DCL") {
-                let msg = localize("autolispext.format.notsupport.dcl", "Command doesn't support DCL files.");
-                vscode.window.showInformationMessage(msg);
-                return [];
-            }
-            if (activeTextEditor.selection.isEmpty) {
-                let msg = localize("autolispext.format.selectionlines", "First, select the lines of code to format.");
-                vscode.window.showInformationMessage(msg);
-            }
+	vscode.languages.registerDocumentRangeFormattingEditProvider(['autolisp', 'lisp'], {
+		//eslint-disable-next-line
+		provideDocumentRangeFormattingEdits(document: vscode.TextDocument): vscode.TextEdit[] {
+			const activeTextEditor = vscode.window.activeTextEditor;
+			if (activeTextEditor == undefined)
+				return [];
+			const currentLSPDoc = activeTextEditor.document.fileName;
+			const ext = currentLSPDoc.substring(currentLSPDoc.length - 4, currentLSPDoc.length).toUpperCase();
+			if (ext === ".DCL") {
+				const msg = localize("autolispext.format.notsupport.dcl", "Command doesn't support DCL files.");
+				vscode.window.showInformationMessage(msg);
+				return [];
+			}
+			if (activeTextEditor.selection.isEmpty) {
+				const msg = localize("autolispext.format.selectionlines", "First, select the lines of code to format.");
+				vscode.window.showInformationMessage(msg);
+			}
 
-            let fmt = LispFormatter.format(activeTextEditor.document, activeTextEditor.selection);
-            return [vscode.TextEdit.replace(utils.getSelectedDocRange(activeTextEditor), fmt)];
-        }
-    });
+			const fmt = LispFormatter.format(activeTextEditor.document, activeTextEditor.selection);
+			return [vscode.TextEdit.replace(utils.getSelectedDocRange(activeTextEditor), fmt)];
+		}
+	});
 }

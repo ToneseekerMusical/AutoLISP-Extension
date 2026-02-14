@@ -7,7 +7,7 @@ import { ReadonlyDocument } from '../../project/readOnlyDocument';
 import { IRootSymbolHost, SymbolManager } from '../../symbols';
 import { TDD, AutoLispExtPrepareRename, AutoLispExtProvideRenameEdits } from '../../providers/renameProvider';
 import { AutoLispExt } from '../../context';
-import { WorkspaceEdit } from 'vscode-languageclient';
+//import { WorkspaceEdit } from 'vscode-languageclient';
 
 let docSymbols: IRootSymbolHost;
 
@@ -35,9 +35,6 @@ suite("RenameProvider: Tests", function () {
 		localArg = new Position(50, 24);
 	});
 
-
-
-
 	test("AutoLispExtPrepareRename() Valid Atom", function () {
 		try {
 			const prepResult = AutoLispExtPrepareRename(roDoc, good);
@@ -48,7 +45,7 @@ suite("RenameProvider: Tests", function () {
 			expect(prepResult.placeholder).to.equal('GlobalsAreLoaded');
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -57,12 +54,9 @@ suite("RenameProvider: Tests", function () {
 			expect(AutoLispExtPrepareRename(roDoc, bad)).to.equal(null);
 		}
 		catch (err) {
-			assert.fail("The known bad position did not error");
+			assert.fail(`The known bad position did not error\n${err}`);
 		}
 	});
-
-
-
 
 	test("AutoLispExtProvideRenameEdits() Un-Hosted Atom", async function () {
 		try {
@@ -70,7 +64,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut.entries().length).to.equal(1);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -80,7 +74,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut.entries().length).to.equal(1);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -90,7 +84,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut.entries().length).to.equal(3);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -100,7 +94,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut.entries().length).to.equal(1);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -110,7 +104,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut).to.equal(null);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -120,7 +114,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut.entries().length).to.equal(1);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -131,7 +125,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut['a'].length).to.equal(4);
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
 
@@ -145,12 +139,9 @@ suite("RenameProvider: Tests", function () {
 			});
 		}
 		catch (err) {
-			assert.fail("The known position failed to produced results or results other than expected");
+			assert.fail(`The known position failed to produced results or results other than expected\n${err}`);
 		}
 	});
-
-
-
 
 	test("RenameProviderSupport.getRenameTargetsFromParentScope()", function () {
 		try {
@@ -159,7 +150,7 @@ suite("RenameProvider: Tests", function () {
 			expect(targets.length).to.equal(3);
 		}
 		catch (err) {
-			assert.fail("The test global symbol query produced no results or an unexpected quantity");
+			assert.fail(`The test global symbol query produced no results or an unexpected quantity\n${err}`);
 		}
 	});
 
@@ -173,7 +164,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut).to.equal(null);
 		}
 		catch (err) {
-			assert.fail("The test symbol values failed to produce expected results");
+			assert.fail(`The test symbol values failed to produce expected results\n${err}`);
 		}
 	});
 
@@ -186,7 +177,7 @@ suite("RenameProvider: Tests", function () {
 			expect(sut).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("The test symbol values failed to produce expected results");
+			assert.fail(`The test symbol values failed to produce expected results\n${err}`);
 		}
 	});
 
@@ -201,7 +192,7 @@ suite("RenameProvider: Tests", function () {
 			expect(TDD.isValidInput('ok45')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("The test symbol values failed to produce expected results");
+			assert.fail(`The test symbol values failed to produce expected results\n${err}`);
 		}
 	});
 

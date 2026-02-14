@@ -18,10 +18,10 @@ import * as DebugProviders from "./debug";
 import { registerProjectCommands } from "./project/projectCommands";
 import { registerCommands } from "./commands";
 import { AutoLispExt } from "./context";
-import * as nls from 'vscode-nls';
+//import * as nls from 'vscode-nls';
 
 // The example uses the file message format.
-const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
+//const localize = nls.config({ messageFormat: nls.MessageFormat.file })();
 
 let client: BaseLanguageClient;
 

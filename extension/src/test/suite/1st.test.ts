@@ -1,11 +1,10 @@
 import * as chai from 'chai';
 import * as vscode from 'vscode';
 import * as path from 'path';
+import { assert } from 'chai'
 
-var assert = require('chai').assert;
-
-suite("Global Setup", function () {	
-	test("Artificial Invoke of AutoLispExt", async function () {	
+suite("Global Setup", function () {
+	test("Artificial Invoke of AutoLispExt", async function () {
 		try {
 			this.timeout(10000);
 			// For some reason, activating our extension from within a test is "better" than
@@ -15,21 +14,21 @@ suite("Global Setup", function () {
 			chai.assert(true);
 		}
 		catch (err) {
-			assert.fail("Failed to activate extension");
+			assert.fail(`Failed to activate extension\n${err}`);
 		}
 	});
 
-	test("Initialize an Active Editor", async function () {	
+	test("Initialize an Active Editor", async function () {
 		try {
 			// Added this immediate file open invoke to give certain tests designed to scan
 			// all possible ReadOnlyDocument context types full code coverage.
 			const filePath = path.resolve(__dirname, '../../../', './extension/src/test/SourceFile/test_case/comments.lsp');
 			const options = { 'preview': false, 'preserveFocus': true };
 			await vscode.commands.executeCommand('vscode.open', vscode.Uri.file(filePath), options);
-			chai.assert(true);			
+			chai.assert(true);
 		}
 		catch (err) {
-			assert.fail("Failed to open an active document editor");
+			assert.fail(`Failed to open an active document editor\n${err}`);
 		}
 	});
 

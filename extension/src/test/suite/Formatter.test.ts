@@ -8,42 +8,42 @@ import { ImportMock } from "ts-mock-imports";
 import { AutoLispExt } from "../../context";
 import * as vscode from 'vscode';
 
-let assert: Chai.Assert = chai.assert;
-let testDir = path.join(__dirname + "/../../../extension/src/test");
+const assert: Chai.Assert = chai.assert;
+const testDir = path.join(__dirname + "/../../../extension/src/test");
 const outputDir = path.join(testDir + "/OutputFile");
 
 fs.mkdir(outputDir, { recursive: true }, (err) => {
-  if (err) {
-    return console.error(err);
-  }
+	if (err) {
+		return console.error(err);
+	}
 });
 
 function getFileName(i: number) {
-  const source = path.join(testDir + "/SourceFile/unFormatted" + i + ".lsp");
-  const output = path.join(
-    testDir + "/OutputFile/formatedOutputFile" + i + ".lsp"
-  );
-  const baseline = path.join(
-    testDir + "/Baseline/formatedBasefile" + i + ".lsp"
-  );
-  return [source, output, baseline];
+	const source = path.join(testDir + "/SourceFile/unFormatted" + i + ".lsp");
+	const output = path.join(
+		testDir + "/OutputFile/formatedOutputFile" + i + ".lsp"
+	);
+	const baseline = path.join(
+		testDir + "/Baseline/formatedBasefile" + i + ".lsp"
+	);
+	return [source, output, baseline];
 }
 function comparefileSync(
-  i: number,
-  output: string,
-  fmt: string,
-  baseline: string
+	i: number,
+	output: string,
+	fmt: string,
+	baseline: string
 ) {
-  try {
-    fs.writeFileSync(output, fmt);
-    let baseString = fs.readFileSync(baseline, { encoding: "utf8", flag: "r" });
-    //Trick to pass the test is to ignore the \r
-    fmt = fmt.replace(/(\r)/gm, "");
-    baseString = baseString.replace(/(\r)/gm, "");
-    assert.isTrue(fmt === baseString);
-  } catch (err) {
-    assert.fail(`Format Test Case ${i} failed!`);
-  }
+	try {
+		fs.writeFileSync(output, fmt);
+		let baseString = fs.readFileSync(baseline, { encoding: "utf8", flag: "r" });
+		//Trick to pass the test is to ignore the \r
+		fmt = fmt.replace(/(\r)/gm, "");
+		baseString = baseString.replace(/(\r)/gm, "");
+		assert.isTrue(fmt === baseString);
+	} catch (err) {
+		assert.fail(`Format Test Case ${i} failed!\n${err}`);
+	}
 }
 // Notes:
 // Format test is a setting sensitive which depends on the format settings defined
@@ -55,376 +55,376 @@ function comparefileSync(
 // LongListFormatStyle: 'Fill to margin'
 // Need to remove the \r to do the format output compare
 suite("Lisp Formatter mock Tests", function () {
-  let closeParenStyleStub;
-  let maximumLineCharsStub;
-  let longListFormatStyleStub;
-  let indentSpacesStub;
-  let internalLispFuncsStub;
-  let internalOperators;
+	let closeParenStyleStub;
+	let maximumLineCharsStub;
+	let longListFormatStyleStub;
+	let indentSpacesStub;
+	let internalLispFuncsStub;
+	let internalOperators;
 
-  suiteSetup(() => {
-    let keyFile = path.join(
-      __dirname + "/../../../extension/data/alllispkeys.txt"
-    );
-    internalOperators = fs.readFileSync(keyFile).toString().split("\r\n");
-    internalLispFuncsStub = ImportMock.mockOther(
-      AutoLispExt.Resources,
-      "internalLispFuncs",
-      internalOperators
-    );
-  });
+	suiteSetup(() => {
+		const keyFile = path.join(
+			__dirname + "/../../../extension/data/alllispkeys.txt"
+		);
+		internalOperators = fs.readFileSync(keyFile).toString().split("\r\n");
+		internalLispFuncsStub = ImportMock.mockOther(
+			AutoLispExt.Resources,
+			"internalLispFuncs",
+			internalOperators
+		);
+	});
 
-  setup(() => {
-    resetDefault();
-  });
+	setup(() => {
+		resetDefault();
+	});
 
-  suiteTeardown(() => {
-    internalLispFuncsStub.restore();
-    closeParenStyleStub.restore();
-    maximumLineCharsStub.restore();
-    longListFormatStyleStub.restore();
-    indentSpacesStub.restore();
-  });
+	suiteTeardown(() => {
+		internalLispFuncsStub.restore();
+		closeParenStyleStub.restore();
+		maximumLineCharsStub.restore();
+		longListFormatStyleStub.restore();
+		indentSpacesStub.restore();
+	});
 
-  test("Lisp Formatter Test case 1", function () {
-    //Basic test case
-    let i = 1;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 1", function () {
+		//Basic test case
+		const i = 1;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 2", function () {
-    // Test setq in new lines
-    let i = 2;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 2", function () {
+		// Test setq in new lines
+		const i = 2;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 3", function () {
-    // Test multiple functions format
-    let i = 3;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 3", function () {
+		// Test multiple functions format
+		const i = 3;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 4", function () {
-    // The empty line should not be removed after format
-    let i = 4;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 4", function () {
+		// The empty line should not be removed after format
+		const i = 4;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 5", async function () {
-    // Test the Max line chars setting
-    // Test the bug that it will be a space between the last two brackets ) )
-    // MaxLineChars: 65
-    let i = 5;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      setMaxLineChars(65);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 5", async function () {
+		// Test the Max line chars setting
+		// Test the bug that it will be a space between the last two brackets ) )
+		// MaxLineChars: 65
+		const i = 5;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setMaxLineChars(65);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 6", function () {
-    // Test the indent, the default indent should be 2
-    let i = 6;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 6", function () {
+		// Test the indent, the default indent should be 2
+		const i = 6;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 7", async function () {
-    // Test the single column setting
-    let i = 7;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      // set as wide single column format
-      setLongListFormat("Single Column");
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 7", async function () {
+		// Test the single column setting
+		const i = 7;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			// set as wide single column format
+			setLongListFormat("Single Column");
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 8", async function () {
-    // Test another single column setting
-    let i = 8;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      // set as wide single column format
-      setLongListFormat("Single Column");
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 8", async function () {
+		// Test another single column setting
+		const i = 8;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			// set as wide single column format
+			setLongListFormat("Single Column");
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 9", function () {
-    // Test list format which comes from an old bug
-    // This is a bug needs to be fixed in lisp extension
-    let i = 9;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 9", function () {
+		// Test list format which comes from an old bug
+		// This is a bug needs to be fixed in lisp extension
+		const i = 9;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 10", function () {
-    // Test long list and big file - chinaMap.lsp
-    // This test will take long time
-    let i = 10;
-    this.timeout(20000);
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 10", function () {
+		// Test long list and big file - chinaMap.lsp
+		// This test will take long time
+		const i = 10;
+		this.timeout(20000);
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 11", async function () {
-    // Test indent space setting
-    let i = 11;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      setIndentSpaces(4);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 11", async function () {
+		// Test indent space setting
+		const i = 11;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setIndentSpaces(4);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 12", async function () {
-    // Test Closed Parenthesis In Same Line setting
-    let i = 12;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      setClosedParenInSameLine("same line");
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 12", async function () {
+		// Test Closed Parenthesis In Same Line setting
+		const i = 12;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setClosedParenInSameLine("same line");
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 13", async function () {
-    // Test Mixed settings
-    // MaxLineChars: 65
-    // NarrowStyleIndent: 4
-    // CloseParenthesisStyle: 'Same line'
-    // LongListFormatStyle: 'Single line'
-    let i = 13;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      setClosedParenInSameLine("same line");
-      setIndentSpaces(4);
-      setMaxLineChars(65);
-      setLongListFormat("single column");
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 13", async function () {
+		// Test Mixed settings
+		// MaxLineChars: 65
+		// NarrowStyleIndent: 4
+		// CloseParenthesisStyle: 'Same line'
+		// LongListFormatStyle: 'Single line'
+		const i = 13;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setClosedParenInSameLine("same line");
+			setIndentSpaces(4);
+			setMaxLineChars(65);
+			setLongListFormat("single column");
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 14", async function () {
-    // Test the comments after the brackets ") ;progn"
-    // MaxLineChars: 80
-    // NarrowStyleIndent: 4
-    let i = 14;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      setIndentSpaces(4);
-      setMaxLineChars(80);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 14", async function () {
+		// Test the comments after the brackets ") ;progn"
+		// MaxLineChars: 80
+		// NarrowStyleIndent: 4
+		const i = 14;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setIndentSpaces(4);
+			setMaxLineChars(80);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 15", async function () {
-    // Test unicode
-    // MaxLineChars: 60
-    // NarrowStyleIndent: 2
-    let i = 15;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      setIndentSpaces(2);
-      setMaxLineChars(60);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 15", async function () {
+		// Test unicode
+		// MaxLineChars: 60
+		// NarrowStyleIndent: 2
+		const i = 15;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setIndentSpaces(2);
+			setMaxLineChars(60);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 16", async function () {
-    // Test invalid setting
-    // MaxLineChars: 30
-    // NarrowStyleIndent: 8
-    let i = 16;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      let doc = ReadonlyDocument.open(source);
-      setIndentSpaces(8);
-      setMaxLineChars(30);
-      let fmt = LispFormatter.format(doc, null);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 16", async function () {
+		// Test invalid setting
+		// MaxLineChars: 30
+		// NarrowStyleIndent: 8
+		const i = 16;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			setIndentSpaces(8);
+			setMaxLineChars(30);
+			const fmt = LispFormatter.format(doc, null);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 17", function () {
-    //Test format selection
-    let i = 17;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let anchor = new vscode.Position(4, 2);
-      let active = new vscode.Position(20, 4);
-      let selectedRange = new vscode.Selection(anchor, active);
-      let fmt = LispFormatter.format(doc, selectedRange);
-      fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 17", function () {
+		//Test format selection
+		const i = 17;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const anchor = new vscode.Position(4, 2);
+			const active = new vscode.Position(20, 4);
+			const selectedRange = new vscode.Selection(anchor, active);
+			let fmt = LispFormatter.format(doc, selectedRange);
+			fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 18", function () {
-    //Test format selection - inverse selection
-    let i = 18;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let anchor = new vscode.Position(11, 12);
-      let active = new vscode.Position(4, 4);
-      let selectedRange = new vscode.Selection(anchor, active);
-      let fmt = LispFormatter.format(doc, selectedRange);
-      fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 18", function () {
+		//Test format selection - inverse selection
+		const i = 18;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const anchor = new vscode.Position(11, 12);
+			const active = new vscode.Position(4, 4);
+			const selectedRange = new vscode.Selection(anchor, active);
+			let fmt = LispFormatter.format(doc, selectedRange);
+			fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  test("Lisp Formatter Test case 19", function () {
-    //Test format selection - plus some format setting
-    let i = 19;
-    try {
-      const [source, output, baseline] = getFileName(i);
-      const doc = ReadonlyDocument.open(source);
-      let anchor = new vscode.Position(7, 6);
-      let active = new vscode.Position(16, 2);
-      let selectedRange = new vscode.Selection(anchor, active);
-      setClosedParenInSameLine("same line");
-      setIndentSpaces(4);
-      setMaxLineChars(65);
-      setLongListFormat("single column");
-      let fmt = LispFormatter.format(doc, selectedRange);
-      fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
-      comparefileSync(i, output, fmt, baseline);
-    } catch (err) {
-      assert.fail(`The lisp format test case ${i} failed`);
-    }
-  });
+	test("Lisp Formatter Test case 19", function () {
+		//Test format selection - plus some format setting
+		const i = 19;
+		try {
+			const [source, output, baseline] = getFileName(i);
+			const doc = ReadonlyDocument.open(source);
+			const anchor = new vscode.Position(7, 6);
+			const active = new vscode.Position(16, 2);
+			const selectedRange = new vscode.Selection(anchor, active);
+			setClosedParenInSameLine("same line");
+			setIndentSpaces(4);
+			setMaxLineChars(65);
+			setLongListFormat("single column");
+			let fmt = LispFormatter.format(doc, selectedRange);
+			fmt = doc.getText().replace(doc.getText(selectedRange), fmt);
+			comparefileSync(i, output, fmt, baseline);
+		} catch (err) {
+			assert.fail(`The lisp format test case ${i} failed\n${err}`);
+		}
+	});
 
-  function setIndentSpaces(indent: number) {
-    if (indentSpacesStub) {
-      indentSpacesStub.restore();
-    }
-    indentSpacesStub = ImportMock.mockFunction(
-      fmtConfig,
-      "indentSpaces",
-      indent
-    );
-  }
-  function setClosedParenInSameLine(closeParenStyle: string) {
-    if (closeParenStyleStub) {
-      closeParenStyleStub.restore();
-    }
-    closeParenStyleStub = ImportMock.mockFunction(
-      fmtConfig,
-      "closeParenStyle",
-      closeParenStyle
-    );
-  }
-  function setMaxLineChars(maxchar: number) {
-    if (maximumLineCharsStub) {
-      maximumLineCharsStub.restore();
-    }
-    maximumLineCharsStub = ImportMock.mockFunction(
-      fmtConfig,
-      "maximumLineChars",
-      maxchar
-    );
-  }
-  function setLongListFormat(LongListFormat: string) {
-    if (longListFormatStyleStub) {
-      longListFormatStyleStub.restore();
-    }
-    longListFormatStyleStub = ImportMock.mockFunction(
-      fmtConfig,
-      "longListFormatStyle",
-      LongListFormat
-    );
-  }
-  function resetDefault() {
-    setClosedParenInSameLine('New line with outer indentation');
-    setMaxLineChars(85);
-    setLongListFormat('Fill to margin');
-    setIndentSpaces(2);
-  }
+	function setIndentSpaces(indent: number) {
+		if (indentSpacesStub) {
+			indentSpacesStub.restore();
+		}
+		indentSpacesStub = ImportMock.mockFunction(
+			fmtConfig,
+			"indentSpaces",
+			indent
+		);
+	}
+	function setClosedParenInSameLine(closeParenStyle: string) {
+		if (closeParenStyleStub) {
+			closeParenStyleStub.restore();
+		}
+		closeParenStyleStub = ImportMock.mockFunction(
+			fmtConfig,
+			"closeParenStyle",
+			closeParenStyle
+		);
+	}
+	function setMaxLineChars(maxchar: number) {
+		if (maximumLineCharsStub) {
+			maximumLineCharsStub.restore();
+		}
+		maximumLineCharsStub = ImportMock.mockFunction(
+			fmtConfig,
+			"maximumLineChars",
+			maxchar
+		);
+	}
+	function setLongListFormat(LongListFormat: string) {
+		if (longListFormatStyleStub) {
+			longListFormatStyleStub.restore();
+		}
+		longListFormatStyleStub = ImportMock.mockFunction(
+			fmtConfig,
+			"longListFormatStyle",
+			LongListFormat
+		);
+	}
+	function resetDefault() {
+		setClosedParenInSameLine('New line with outer indentation');
+		setMaxLineChars(85);
+		setLongListFormat('Fill to margin');
+		setIndentSpaces(2);
+	}
 });

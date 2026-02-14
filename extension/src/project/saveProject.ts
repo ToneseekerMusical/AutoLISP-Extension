@@ -16,27 +16,27 @@ import * as vscode from 'vscode';
 export async function SaveProject(refresh: boolean) {
 	try {
 		if (ProjectTreeProvider.hasProjectOpened() == false) {
-			let msg = localize("autolispext.project.saveproject.noprojecttosave", "No project to save.");
+			const msg = localize("autolispext.project.saveproject.noprojecttosave", "No project to save.");
 			return Promise.reject(msg);
 		}
 
-		let root = ProjectTreeProvider.instance().projectNode;
+		const root = ProjectTreeProvider.instance().projectNode;
 
 		//work out the correct project file text
-		let prjFileText = generateProjectText(root);
+		const prjFileText = generateProjectText(root);
 		if (!prjFileText) {
-			let msg = localize("autolispext.project.saveproject.generateprjcontentfailed", "Failed to generate project content.");
+			const msg = localize("autolispext.project.saveproject.generateprjcontentfailed", "Failed to generate project content.");
 			return Promise.reject(msg);
 		}
 
 		//format the text before writing to file
-		let doc = ReadonlyDocument.createMemoryDocument(prjFileText, 'autolispprj');
+		const doc = ReadonlyDocument.createMemoryDocument(prjFileText, 'autolispprj');
 		longListFormatAsSingleColum();
-		let formatedText = LispFormatter.format(doc, null);
+		const formatedText = LispFormatter.format(doc, null);
 		resetLongListFormatAsSingleColum();
 
 		//write to file
-		let targetPath = root.projectFilePath;
+		const targetPath = root.projectFilePath;
 		fs.writeFileSync(targetPath, formatedText);
 		root.projectModified = false;
 
@@ -59,14 +59,14 @@ export async function SaveProject(refresh: boolean) {
 export async function SaveAll() {
 	const root = ProjectTreeProvider.instance().projectNode;
 	if (!root) {
-		let msg = localize("autolispext.project.saveproject.noprojecttosave", "No project to save.");
+		const msg = localize("autolispext.project.saveproject.noprojecttosave", "No project to save.");
 		return Promise.reject(msg);
 	}
 
 	// get unsaved source files
 	const unsavedFiles = vscode.workspace.textDocuments.filter(file => {
 		if (file.isDirty) {
-			for (let fileNode of root.sourceFiles) {
+			for (const fileNode of root.sourceFiles) {
 				if (pathEqual(fileNode.filePath, file.fileName, false)) {
 					return true;
 				}
@@ -75,7 +75,7 @@ export async function SaveAll() {
 		}
 	});
 
-	for (let file of unsavedFiles) {
+	for (const file of unsavedFiles) {
 		file.save();
 	}
 
@@ -89,7 +89,7 @@ export async function SaveAll() {
 //return the raw text of project file, using the latest source file list to replace the original one;
 //return null on error
 function generateProjectText(root: ProjectNode): string {
-	let fileList = makeSourceFileList(root);
+	const fileList = makeSourceFileList(root);
 
 	let prjFileText = makeProjectFileHeader(root);
 	prjFileText += makeProjectExpression(fileList, root.projectMetadata);
@@ -99,7 +99,7 @@ function generateProjectText(root: ProjectNode): string {
 }
 
 function makeProjectFileHeader(root: ProjectNode): string {
-	let today = new Date();
+	const today = new Date();
 	let ret = ';;; VLisp project file [V2.0] ' + root.projectName;
 	ret += ' saved to:[' + root.projectDirectory + ']';
 	ret += ' at:[' + today.toLocaleDateString() + ']';
@@ -122,7 +122,7 @@ function makeProjectExpression(srcFileList: string, prjDef: ProjectDefinition): 
 	ret += makeKeyValuePair(prjDef, ProjectDefinition.key_cxt_id);
 
 	//in case there're some more properties other than the standard properties
-	for (let key in prjDef.metaData) {
+	for (const key in prjDef.metaData) {
 		if (ProjectDefinition.isStandardProperty(key))
 			continue;
 
@@ -147,26 +147,26 @@ function makeSourceFileList(root: ProjectNode): string {
 	else {
 		fileList = ' (';
 
-		for (let file of root.sourceFiles) {
+		for (const file of root.sourceFiles) {
 			if (file.rawFilePath) {
 				fileList += file.rawFilePath; //use the original text read on opening
 				fileList += " ";
 				continue;
 			}
 
-			let fileDir = path.dirname(file.filePath);
+			const fileDir = path.dirname(file.filePath);
 			if (pathEqual(root.projectDirectory, fileDir, true) == false) {
 				//in this case, we use absolute path, and file extension will be ignored
 				let str2Add = path.normalize(file.filePath).split('\\').join('/');// "/" is used in file path in .prj file
 				str2Add = str2Add.substring(0, str2Add.length - 4);//to remove the extension
-				fileList += ('\"' + str2Add + '\" ');
+				fileList += ('"' + str2Add + '" ');
 				continue;
 			}
 
 			//in this case, the directory and file extension will be ignored
 			let str2Add = path.basename(file.filePath);
 			str2Add = str2Add.substring(0, str2Add.length - 4);//to remove the extension
-			fileList += ('\"' + str2Add + '\" ');
+			fileList += ('"' + str2Add + '" ');
 			continue;
 		}
 

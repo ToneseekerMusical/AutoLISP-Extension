@@ -6,7 +6,7 @@ import { Position } from 'vscode';
 import { AutoLispExtProvideDefinition } from "../../providers/gotoProvider";
 
 suite("GotoProvider: Tests", function () {
-	
+
 	let wrkspcDoc: ReadonlyDocument;
 
 	suiteSetup(() => {
@@ -14,40 +14,34 @@ suite("GotoProvider: Tests", function () {
 			const extRootPath = path.resolve(__dirname, '../../../');
 			const workspaceFileTest = path.resolve(extRootPath, "./extension/src/test/SourceFile/renaming/modelspace utilities.lsp");
 			wrkspcDoc = ReadonlyDocument.open(workspaceFileTest);
-		} catch (error) {
-			assert.fail("Failed to initialize shared suite data sources");
+		} catch (err) {
+			assert.fail(`Failed to initialize shared suite data sources\n${err}`);
 		}
 	});
 
-
-
-	
-	test("AutoLispExtProvideDefinition() - known native test", async function () {	
+	test("AutoLispExtProvideDefinition() - known native test", async function () {
 		try {
 			const pos = new Position(22, 58); // target: princ
 			const sut = await AutoLispExtProvideDefinition(wrkspcDoc, pos);
 			expect(sut).to.equal(null);
 		}
 		catch (err) {
-			assert.fail("Result should have been null, but returned a value instead");
+			assert.fail(`Result should have been null, but returned a value instead\n${err}`);
 		}
 	});
 
-	test("AutoLispExtProvideDefinition() - known primitive test", async function () {	
+	test("AutoLispExtProvideDefinition() - known primitive test", async function () {
 		try {
 			const pos = new Position(31, 23); // target: 2000
 			const sut = await AutoLispExtProvideDefinition(wrkspcDoc, pos);
 			expect(sut).to.equal(null);
 		}
 		catch (err) {
-			assert.fail("Result should have been null, but returned a value instead");
+			assert.fail(`Result should have been null, but returned a value instead\n${err}`);
 		}
 	});
 
-
-	
-
-	test("AutoLispExtProvideDefinition() - known non-native same-source test #1", async function () {	
+	test("AutoLispExtProvideDefinition() - known non-native same-source test #1", async function () {
 		try {
 			const pos = new Position(32, 10); // target: LookBusy
 			const sut = (await AutoLispExtProvideDefinition(wrkspcDoc, pos))[0];
@@ -56,11 +50,11 @@ suite("GotoProvider: Tests", function () {
 			expect(sut.uri.fsPath.endsWith('modelspace utilities.lsp')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("Failed to get expected same-source scope from known LispAtom");
+			assert.fail(`Failed to get expected same-source scope from known LispAtom\n${err}`);
 		}
 	});
 
-	test("AutoLispExtProvideDefinition() - known non-native same-source test #2", async function () {	
+	test("AutoLispExtProvideDefinition() - known non-native same-source test #2", async function () {
 		try {
 			const pos = new Position(48, 22); // target: actvDoc (localized)
 			const sut = (await AutoLispExtProvideDefinition(wrkspcDoc, pos))[0];
@@ -69,11 +63,11 @@ suite("GotoProvider: Tests", function () {
 			expect(sut.uri.fsPath.endsWith('modelspace utilities.lsp')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("Failed to get expected same-source scope from known LispAtom");
+			assert.fail(`Failed to get expected same-source scope from known LispAtom\n${err}`);
 		}
 	});
 
-	test("AutoLispExtProvideDefinition() - known non-native same-source test #3", async function () {	
+	test("AutoLispExtProvideDefinition() - known non-native same-source test #3", async function () {
 		try {
 			const pos = new Position(32, 15); // target: actvDoc (non-localized)
 			const sut = (await AutoLispExtProvideDefinition(wrkspcDoc, pos))[0];
@@ -82,14 +76,11 @@ suite("GotoProvider: Tests", function () {
 			expect(sut.uri.fsPath.endsWith('modelspace utilities.lsp')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("Failed to get expected same-source scope from known LispAtom");
+			assert.fail(`Failed to get expected same-source scope from known LispAtom\n${err}`);
 		}
 	});
 
-
-
-
-	test("AutoLispExtProvideDefinition() - known non-native external test #1", async function () {	
+	test("AutoLispExtProvideDefinition() - known non-native external test #1", async function () {
 		try {
 			const pos = new Position(25, 20); // target: LoadGlobalVariables
 			const sut = (await AutoLispExtProvideDefinition(wrkspcDoc, pos))[0];
@@ -98,11 +89,11 @@ suite("GotoProvider: Tests", function () {
 			expect(sut.uri.fsPath.endsWith('standards.lsp')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("Failed to get expected external-source scope from known LispAtom");
+			assert.fail(`Failed to get expected external-source scope from known LispAtom\n${err}`);
 		}
 	});
 
-	test("AutoLispExtProvideDefinition() - known non-native external test #2", async function () {	
+	test("AutoLispExtProvideDefinition() - known non-native external test #2", async function () {
 		try {
 			const pos = new Position(25, 20); // target: GlobalsAreLoaded
 			const sut = (await AutoLispExtProvideDefinition(wrkspcDoc, pos))[0];
@@ -111,11 +102,11 @@ suite("GotoProvider: Tests", function () {
 			expect(sut.uri.fsPath.endsWith('standards.lsp')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("Failed to get expected external-source scope from known LispAtom");
+			assert.fail(`Failed to get expected external-source scope from known LispAtom\n${err}`);
 		}
 	});
 
-	test("AutoLispExtProvideDefinition() - known non-native external test #3", async function () {	
+	test("AutoLispExtProvideDefinition() - known non-native external test #3", async function () {
 		try {
 			const pos = new Position(17, 20); // target: sfc:style3
 			const sut = (await AutoLispExtProvideDefinition(wrkspcDoc, pos))[0];
@@ -124,9 +115,7 @@ suite("GotoProvider: Tests", function () {
 			expect(sut.uri.fsPath.endsWith('standards.lsp')).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("Failed to get expected external-source scope from known LispAtom");
+			assert.fail(`Failed to get expected external-source scope from known LispAtom\n${err}`);
 		}
 	});
-
-
 });

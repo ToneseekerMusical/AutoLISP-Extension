@@ -6,13 +6,13 @@ import { Position } from 'vscode';
 import { DclAttribute } from '../../astObjects/dclAttribute';
 import { DclAtom } from '../../astObjects/dclAtom';
 
-suite("AST Objects: DCL Attribute", function () {	
+suite("AST Objects: DCL Attribute", function () {
 
-	let doc: ReadonlyDocument;	
+	let doc: ReadonlyDocument;
 	suiteSetup(async () => {
 		const extRootPath = path.resolve(__dirname, '../../../');
 		const dclPath = path.resolve(extRootPath, "./extension/src/test/SourceFile/renaming/dialog.dcl");
-		doc = ReadonlyDocument.open(dclPath); 
+		doc = ReadonlyDocument.open(dclPath);
 	});
 
 
@@ -24,7 +24,7 @@ suite("AST Objects: DCL Attribute", function () {
 		try {
 			const sut = (getLine: number, getColumn: number): IDclContainer => {
 				return doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), false);
-			   };
+			};
 			const att1 = sut(7, 7);
 			const att2 = sut(21, 21);
 			const att3 = new DclAttribute([]);
@@ -38,16 +38,16 @@ suite("AST Objects: DCL Attribute", function () {
 			expect(att3.column).to.equal(-1);
 		}
 		catch (err) {
-			assert.fail("The expected container and/or value was not return by the test method");
+			assert.fail(`The expected container and/or value was not return by the test method ${err}`);
 		}
 	});
 
-	test("DclAttribute.flatten() Quantities", function () {	
+	test("DclAttribute.flatten() Quantities", function () {
 		try {
 			const getAttFromPos = (getLine: number, getColumn: number): IDclContainer => {
 				return doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), false);
-			   };
-			
+			};
+
 			const sut1 = getAttFromPos(44, 30).flatten();
 			expect(sut1.length).to.equal(4);
 			expect(getAttFromPos(44, 56).flatten(sut1).length).to.equal(8);
@@ -57,7 +57,7 @@ suite("AST Objects: DCL Attribute", function () {
 			expect(getAttFromPos(47, 8).flatten(sut2).length).to.equal(4);
 		}
 		catch (err) {
-			assert.fail("The known attribute returned the wrong quantity of atoms");
+			assert.fail(`The known attribute returned the wrong quantity of atoms ${err}`);
 		}
 	});
 
@@ -66,7 +66,7 @@ suite("AST Objects: DCL Attribute", function () {
 		try {
 			const sut = (getLine: number, getColumn: number): IDclContainer => {
 				return doc.documentDclContainer.getParentFrom(new Position(getLine, getColumn), false);
-			   };
+			};
 			const realAtt = sut(18, 30);
 			let realIndex = realAtt.firstAtom.flatIndex;
 			const mockAtt = new DclAttribute([
@@ -77,11 +77,12 @@ suite("AST Objects: DCL Attribute", function () {
 			]);
 
 			expect(realAtt.equal(mockAtt)).to.equal(true);
+			/*Any type is required for test to function*/ //eslint-disable-next-line
 			(mockAtt.atoms[0] as any)['symbol'] = 'Width';
 			expect(realAtt.equal(mockAtt)).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("The mock failed to equal or continued to equal the known attribute before or after alterations");
+			assert.fail(`The mock failed to equal or continued to equal the known attribute before or after alterations ${err}`);
 		}
 	});
 
@@ -96,7 +97,7 @@ suite("AST Objects: DCL Attribute", function () {
 				}
 				att = att.asAttribute.getParentFrom(pos);
 				return att === null ? false : att.line === expectLine && att.column === expectColumn;
-			   };
+			};
 			expect(sut(4, 0, 0, 0)).to.equal(false);     // reject root block comment
 			expect(sut(3, 22, 0, 0)).to.equal(false);    // reject root comment
 			expect(sut(31, 16, 5, 0)).to.equal(false);   // reject tile atom
@@ -107,7 +108,7 @@ suite("AST Objects: DCL Attribute", function () {
 			expect(sut(38, 30, 38, 8)).to.equal(true);    // accept attribute atom
 		}
 		catch (err) {
-			assert.fail("A known atom position did not return the expected parent position");
+			assert.fail(`A known atom position did not return the expected parent position ${err}`);
 		}
 	});
 
@@ -121,11 +122,11 @@ suite("AST Objects: DCL Attribute", function () {
 			expect(new DclAttribute([]).firstNonComment).to.equal(null);
 		}
 		catch (err) {
-			assert.fail("The expected container and/or string was not return by the test method");
+			assert.fail(`The expected container and/or string was not return by the test method ${err}`);
 		}
 	});
 
-	
+
 	test("DclAttribute Positional Properties", function () {
 		try {
 			const sut1 = doc.documentDclContainer.getParentFrom(new Position(44, 30), false).asAttribute;
@@ -140,7 +141,7 @@ suite("AST Objects: DCL Attribute", function () {
 			expect(sut2.lastAtom.symbol).to.equal(';');
 		}
 		catch (err) {
-			assert.fail("The expected container and/or value was not returned");
+			assert.fail(`The expected container and/or value was not returned ${err}`);
 		}
 	});
 
@@ -148,8 +149,9 @@ suite("AST Objects: DCL Attribute", function () {
 	test("DclAttribute.isWellFormed Property", function () {
 		try {
 			const mod = (item: IDclContainer, idx: number, value: string): void => {
+				/*Any type is required for test to function*/ //eslint-disable-next-line
 				(item.atoms[idx] as any).symbol = value;
-			   };
+			};
 			const mock = new DclAttribute([
 				new DclAtom(18, 27, 'width', 21),
 				new DclAtom(18, 33, '=', 22),
@@ -171,15 +173,15 @@ suite("AST Objects: DCL Attribute", function () {
 			expect(mock.isWellFormed).to.equal(false);    // width ;
 			mock.atoms.pop();
 			expect(mock.isWellFormed).to.equal(false);    // width
-			
+
 		}
 		catch (err) {
-			assert.fail("At least one of the tests certifying the Attribute did not perform as expected");
+			assert.fail(`At least one of the tests certifying the Attribute did not perform as expected ${err}`);
 		}
 	});
 
-	
 
-	
+
+
 
 });

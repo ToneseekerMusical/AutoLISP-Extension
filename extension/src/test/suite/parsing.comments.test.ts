@@ -5,8 +5,8 @@ import { getBlockCommentParamNameRange, parseDocumentation } from '../../parsing
 import { ReadonlyDocument } from '../../project/readOnlyDocument';
 
 
-suite("Parsing: Comments Tests", function () {	
-	
+suite("Parsing: Comments Tests", function () {
+
 	let roDoc: ReadonlyDocument;
 
 	suiteSetup(() => {
@@ -17,14 +17,14 @@ suite("Parsing: Comments Tests", function () {
 
 
 
-	
+
 	test("Comment Extraction Test", function () {
 		let failMessage = "Failed parse prior to testing any results";
-		try { 
+		try {
 			const positions = [
-				new Position(0 , 5 ),
-				new Position(6 , 14),
-				new Position(9 , 12), // bad input test, returns empty object
+				new Position(0, 5),
+				new Position(6, 14),
+				new Position(9, 12), // bad input test, returns empty object
 				new Position(20, 12),
 				new Position(31, 25),
 				new Position(41, 11)
@@ -43,8 +43,8 @@ suite("Parsing: Comments Tests", function () {
 						accumulator[k].push(lspDoc[k]);
 					}
 				});
-			}	
-			
+			}
+
 			failMessage = "Incorrect parsed comment field block quantities";
 			expect(accumulator['params'].length).to.equal(6);
 			expect(accumulator['description'].length).to.equal(5);
@@ -52,11 +52,11 @@ suite("Parsing: Comments Tests", function () {
 			expect(accumulator['remarks'].length).to.equal(1);
 
 			failMessage = "Failed to properly migrate param variable name";
-			let paramNames = accumulator['params'].map(p => p.name);
+			const paramNames = accumulator['params'].map(p => p.name);
 			expect(paramNames).to.not.have.members(['Param']);
 		}
 		catch (err) {
-			assert.fail(failMessage);
+			assert.fail(failMessage, err);
 		}
 	});
 

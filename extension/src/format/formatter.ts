@@ -26,7 +26,7 @@ export class LispFormatter {
 			return "";
 
 		try {
-			let parser = new LispParser(document);
+			const parser = new LispParser(document);
 			parser.tokenizeString(textString, selectionStartOffset);
 			if (fileParser)
 				fileParser.tokenizeString(document.getText(), 0);
@@ -39,17 +39,17 @@ export class LispFormatter {
 	}
 
 	private static formatGut(document: vscode.TextDocument, parser: LispParser, origCopy: string, fileParser?: LispParser): string {
-		let atoms = parser.atomsForest;
+		const atoms = parser.atomsForest;
 		if (atoms.length == 0)
 			return origCopy;
 
 		let formattedstring = "";
-		let linefeed = LispParser.getEOL(document);
+		const linefeed = LispParser.getEOL(document);
 		for (let i = 0; i < atoms.length; i++) {
 			if (atoms[i] instanceof Sexpression) {
-				let lispLists = atoms[i] as Sexpression;
+				const lispLists = atoms[i] as Sexpression;
 
-				let firstAtom = lispLists.atoms[0];
+				const firstAtom = lispLists.atoms[0];
 				let isTopLevelAtom = true;
 				if (fileParser)
 					isTopLevelAtom = fileParser.isTopLevelAtom(firstAtom.line, firstAtom.column);
@@ -58,14 +58,14 @@ export class LispFormatter {
 				if (isTopLevelAtom)
 					startColumn = 0;
 
-				let formatstr = lispLists.formatting(startColumn, linefeed);
+				const formatstr = lispLists.formatting(startColumn, linefeed);
 				if (formatstr.length == 0) {
-					let msg = localize("autolispext.formatter.errors", "It meets some errors when formatting");
+					const msg = localize("autolispext.formatter.errors", "It meets some errors when formatting");
 					throw new Error(msg);
 				}
 
 				if (isTopLevelAtom && formattedstring.length > 0) {
-					let lastCh = formattedstring.substring(-1);
+					const lastCh = formattedstring.substring(-1);
 					if (lastCh != "\n") {
 						formattedstring = formattedstring.trimEnd();
 						if (formattedstring != linefeed && formattedstring.length > 0)

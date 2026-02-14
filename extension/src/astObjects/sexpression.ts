@@ -68,7 +68,7 @@ export class Sexpression extends LispAtom {
 		if (!sexpr.atoms)
 			return ret;
 
-		for (let atom of sexpr.atoms) {
+		for (const atom of sexpr.atoms) {
 			if (atom instanceof Sexpression) {
 				ret += this.getRawText(atom as Sexpression);
 			}
@@ -82,12 +82,12 @@ export class Sexpression extends LispAtom {
 	}
 
 	getAtomFromPos(loc: Position): LispAtom {
-		var line = loc.line;
-		var col = loc.character;
-		for (var i = 0; i < this.atoms.length; i++) {
+		const line = loc.line;
+		const col = loc.character;
+		for (let i = 0; i < this.atoms.length; i++) {
 			if (this.atoms[i] instanceof Sexpression) {
-				var sexpr = this.atoms[i] as Sexpression;
-				var atom = sexpr.getAtomFromPos(loc);
+				const sexpr = this.atoms[i] as Sexpression;
+				const atom = sexpr.getAtomFromPos(loc);
 				if (atom != null)
 					return atom;
 			}
@@ -115,7 +115,7 @@ export class Sexpression extends LispAtom {
 			return -1;
 
 		if (last) {
-			let lastAtom = this.atoms[this.atoms.length - 1];
+			const lastAtom = this.atoms[this.atoms.length - 1];
 			return lastAtom.symbLine();
 		} else {
 			return this.atoms[0].symbLine();
@@ -131,7 +131,7 @@ export class Sexpression extends LispAtom {
 		let count = 0;
 		for (let index = 0; index < this.atoms.length; index++) {
 			if (this.atoms[index] instanceof Sexpression) {
-				let subExpr = this.atoms[index] as Sexpression;
+				const subExpr = this.atoms[index] as Sexpression;
 				count += subExpr.atomsCount();
 			}
 			else if (!this.atoms[index].isLeftParen()
@@ -165,14 +165,14 @@ export class Sexpression extends LispAtom {
 	private formatSetq(startColumn: number): string {
 		// compute the "variable" column width
 		let secondColumnWidth = 0;
-		let realAtoms: number[] = [];
+		const realAtoms: number[] = [];
 		for (let i = 0; i < this.atoms.length; i++) {
 			if (this.atoms[i].isComment())
 				continue;
 			realAtoms.push(i);
 		}
 		for (let m = 2; m < realAtoms.length; m += 2) {
-			let index = realAtoms[m];
+			const index = realAtoms[m];
 			if (this.atoms[index].length() > secondColumnWidth)
 				secondColumnWidth = this.atoms[index].length();
 		}
@@ -202,8 +202,8 @@ export class Sexpression extends LispAtom {
 
 		res += firstLine;
 
-		let setqPrefixLength = 6; // (setq length, no regard the comment length
-		let variblesColumnPos = startColumn + setqPrefixLength;
+		const setqPrefixLength = 6; // (setq length, no regard the comment length
+		const variblesColumnPos = startColumn + setqPrefixLength;
 		let lastVariableIndex = 0;
 		let hasCloseParen = false;
 		for (let i = startIndex + 1; i < this.atoms.length; i++) {
@@ -219,16 +219,16 @@ export class Sexpression extends LispAtom {
 				continue;
 			}
 
-			let atomIndex = realAtoms.indexOf(i);
+			const atomIndex = realAtoms.indexOf(i);
 			if (atomIndex % 2 == 0) {
 				// varaible column
-				let varColumn = Sexpression.format(this.atoms[i], variblesColumnPos);
+				const varColumn = Sexpression.format(this.atoms[i], variblesColumnPos);
 				res += varColumn;
 
 				lastVariableIndex = i;
 			} else if (atomIndex > -1) {
 				// value column
-				let varColumn = Sexpression.format(this.atoms[lastVariableIndex], variblesColumnPos);
+				const varColumn = Sexpression.format(this.atoms[lastVariableIndex], variblesColumnPos);
 				let numspaces = secondColumnWidth - varColumn.length;
 				if (realAtoms.indexOf(i - 1) == -1) {
 					numspaces = secondColumnWidth;
@@ -239,7 +239,7 @@ export class Sexpression extends LispAtom {
 				// The 1 is the 1 blank space
 				res += Sexpression.format(this.atoms[i], variblesColumnPos + secondColumnWidth + 1);
 
-				let nextAtom = this.atoms[i + 1];
+				const nextAtom = this.atoms[i + 1];
 				if (!this.isRightParenAtIndex(i + 1) && nextAtom && !nextAtom.isComment()) {
 					res += this.addNewLine(variblesColumnPos);
 				}
@@ -249,10 +249,10 @@ export class Sexpression extends LispAtom {
 		// Last atom maybe )
 		if (hasCloseParen) {
 
-			let closeParenStr = this.formatLastAtom(startColumn, variblesColumnPos, this.isMultilineString(res));
+			const closeParenStr = this.formatLastAtom(startColumn, variblesColumnPos, this.isMultilineString(res));
 			// Try to remove the extra line feed if the last atom is comment
 			if (closeParenStr.startsWith(this.linefeed)) {
-				let lastlinefeed = res.lastIndexOf(this.linefeed);
+				const lastlinefeed = res.lastIndexOf(this.linefeed);
 				if (lastlinefeed > 0) {
 					let laststr = res.substring(lastlinefeed);
 					laststr = laststr.trimEnd();
@@ -270,10 +270,10 @@ export class Sexpression extends LispAtom {
 	public formatListToFillMargin(startColumn: number, alignCol?: number): string {
 		let res = "";
 
-		let leftMargin = gMaxLineChars - startColumn;
+		const leftMargin = gMaxLineChars - startColumn;
 		let line = Sexpression.format(this.atoms[0], startColumn);
 		let lineLen = line.length + startColumn;
-		let firstColWidth = line.length > 8 ? gIndentSpaces : line.length;
+		const firstColWidth = line.length > 8 ? gIndentSpaces : line.length;
 		let secondColWidth = 0;
 		let alignWidth = firstColWidth;
 		let hasCloseParen = false;
@@ -284,11 +284,11 @@ export class Sexpression extends LispAtom {
 				break;
 			}
 
-			let realLineCont = line.trim();
-			let trylayoutCont = Sexpression.format(this.atoms[i], lineLen);
-			let col = trylayoutCont.search("\n");
-			let thisColWidth = col == -1 ? this.atoms[i].length() : col;
-			let isProperLength = (): boolean => {
+			const realLineCont = line.trim();
+			const trylayoutCont = Sexpression.format(this.atoms[i], lineLen);
+			const col = trylayoutCont.search("\n");
+			const thisColWidth = col == -1 ? this.atoms[i].length() : col;
+			const isProperLength = (): boolean => {
 				if (realLineCont.length + thisColWidth < leftMargin)
 					return true;
 				return false;
@@ -357,24 +357,24 @@ export class Sexpression extends LispAtom {
 
 	private formatDefun(startColumn: number): string {
 		let handledParam = false;
-		let paramListFormatter = (startColumn: number, index: number): CustomRes => {
-			let atom = this.atoms[index];
+		const paramListFormatter = (startColumn: number, index: number): CustomRes => {
+			const atom = this.atoms[index];
 			if (!handledParam && atom instanceof Sexpression) {
 				handledParam = true;
-				let expr = atom as Sexpression;
+				const expr = atom as Sexpression;
 				return { succ: true, res: expr.formatListAsColumn(startColumn) };
 			} else return { succ: false, res: undefined };
 		}
 
-		let paramsCustomCall = new CustomFmtHandler(paramListFormatter);
-		let firstlineatoms = 4;
-		let res = this.formatList(startColumn, firstlineatoms, false, undefined, paramsCustomCall);
+		const paramsCustomCall = new CustomFmtHandler(paramListFormatter);
+		const firstlineatoms = 4;
+		const res = this.formatList(startColumn, firstlineatoms, false, undefined, paramsCustomCall);
 		return res;
 	}
 
 	private formatLastAtom(startColumn: number, columnWidth: number, addedNewLine?: boolean): string {
 		let res = "";
-		let lastAtom = this.atoms[this.atoms.length - 1];
+		const lastAtom = this.atoms[this.atoms.length - 1];
 		if (lastAtom.isRightParen()) {
 			if (!addedNewLine || gClosedParenInSameLine) {
 				if (!this.atoms[this.atoms.length - 2].isLineComment())
@@ -393,11 +393,11 @@ export class Sexpression extends LispAtom {
 
 	private formatLambda(startColumn: number): string {
 		let handledParam = false;
-		let paramListFormatter = (startColumn: number, index: number): CustomRes => {
-			let atom = this.atoms[index];
+		const paramListFormatter = (startColumn: number, index: number): CustomRes => {
+			const atom = this.atoms[index];
 			if (!handledParam && atom instanceof Sexpression) {
 				handledParam = true;
-				let expr = atom as Sexpression;
+				const expr = atom as Sexpression;
 				let res;
 				if (expr.canBeFormatAsPlain(startColumn))
 					res = expr.formatAsPlainStyle(startColumn);
@@ -406,8 +406,8 @@ export class Sexpression extends LispAtom {
 			} else return { succ: false, res: undefined };
 		}
 
-		let paramsCustomCall = new CustomFmtHandler(paramListFormatter);
-		let res = this.formatList(startColumn, 3, false, undefined, paramsCustomCall);
+		const paramsCustomCall = new CustomFmtHandler(paramListFormatter);
+		const res = this.formatList(startColumn, 3, false, undefined, paramsCustomCall);
 		return res;
 	}
 
@@ -444,7 +444,7 @@ export class Sexpression extends LispAtom {
 			else {
 				cont = Sexpression.format(this.atoms[i], startColumn + firstLine.length, isCond);
 				// There is no space for plain format, so it needs to do narrow style format
-				if (prevAtom != "(" && prevAtom != "\'") {
+				if (prevAtom != "(" && prevAtom != "'") {
 					if (cont.indexOf("\n") != -1) {
 						firstcolumnWdith = gIndentSpaces;
 						lastIndex = i;
@@ -455,7 +455,7 @@ export class Sexpression extends LispAtom {
 
 			firstLine += cont;
 			prevAtom = cont;
-			if (cont != "(" && cont != "\'")
+			if (cont != "(" && cont != "'")
 				firstLine += " ";
 
 			if (i < alignItemIndex)
@@ -469,7 +469,7 @@ export class Sexpression extends LispAtom {
 			if (firstcolumnWdith > gIndentSpaces)
 				firstcolumnWdith = gIndentSpaces;
 		}
-		let columnWidth = startColumn + firstcolumnWdith;
+		const columnWidth = startColumn + firstcolumnWdith;
 
 		for (let j = lastIndex; j < this.atoms.length; j++) {
 			if (this.isRightParenAtIndex(j)) {
@@ -478,15 +478,15 @@ export class Sexpression extends LispAtom {
 			}
 
 			if (this.atoms[j].isLineComment() && this.atoms[j - 1].symbLine() == this.atoms[j].symbLine()) {
-				let comment = Sexpression.format(this.atoms[j], columnWidth);
+				const comment = Sexpression.format(this.atoms[j], columnWidth);
 				res += " " + comment;
 				continue;
 			}
 
-			let prevAtom = j - 1;
+			const prevAtom = j - 1;
 			if (prevAtom >= 0) {
 				let m = this.atoms[j - 1].symbLine(true) + 1;
-				let curAtomLine = this.atoms[j].symbLine(false);
+				const curAtomLine = this.atoms[j].symbLine(false);
 				for (; m < curAtomLine; m++) {
 					res += this.linefeed;
 				}
@@ -510,7 +510,7 @@ export class Sexpression extends LispAtom {
 
 		// Last atom may be )
 		if (hasCloseParen) {
-			let str2Append = this.formatLastAtom(startColumn, columnWidth, this.isMultilineString(res));
+			const str2Append = this.formatLastAtom(startColumn, columnWidth, this.isMultilineString(res));
 			if (str2Append === ')')
 				res = res.trimEnd(); // to avoid extra whitespace before the closing paren.
 			res += str2Append;
@@ -527,7 +527,7 @@ export class Sexpression extends LispAtom {
 		let res = "";
 		let startPos = startColumn;
 		for (let i = 0; i < this.atoms.length; i++) {
-			let cont = Sexpression.format(this.atoms[i], startPos);
+			const cont = Sexpression.format(this.atoms[i], startPos);
 			res += cont;
 			startPos += cont.length;
 
@@ -548,21 +548,21 @@ export class Sexpression extends LispAtom {
 	}
 
 	private isQuote(): boolean {
-		if (this.atoms.length < 2 || this.atoms[0].symbol != "\'")
+		if (this.atoms.length < 2 || this.atoms[0].symbol != "'")
 			return false;
 		return true;
 	}
 	private formatQuote(startColumn: number): string {
-		let quoteBody = this.atoms.slice(1);
-		let quoteExpr = new Sexpression();
+		const quoteBody = this.atoms.slice(1);
+		const quoteExpr = new Sexpression();
 		quoteExpr.setAtoms(quoteBody);
 
-		let purgeAtoms = quoteExpr.isPureList();
+		const purgeAtoms = quoteExpr.isPureList();
 
 		if (purgeAtoms && !this.canBeFormatAsPlain(startColumn))
-			return "\'" + quoteExpr.formatListAsColumn(startColumn + 1);
+			return "'" + quoteExpr.formatListAsColumn(startColumn + 1);
 		else
-			return "\'" + Sexpression.format(quoteExpr, startColumn + 1, true);
+			return "'" + Sexpression.format(quoteExpr, startColumn + 1, true);
 	}
 
 	private formatListAsNarrowStyle(startColumn: number): string {
@@ -576,7 +576,7 @@ export class Sexpression extends LispAtom {
 	private isDotPairs(): boolean {
 		if (this.atoms.length == 5) {
 			for (let i = 0; i < this.atoms.length; i++) {
-				let atom = this.atoms[i];
+				const atom = this.atoms[i];
 				if (atom instanceof LispAtom) {
 					if (atom.symbol == ".")
 						return true;
@@ -613,7 +613,7 @@ export class Sexpression extends LispAtom {
 	}
 
 	private isSameLineInRawText(): boolean {
-		let line = this.atoms[0].line;
+		const line = this.atoms[0].line;
 
 		for (let i = 1; i < this.atoms.length; i++) {
 			if (this.atoms.length - 1 == i) {
@@ -635,7 +635,7 @@ export class Sexpression extends LispAtom {
 		if (this.atoms.length < 3)
 			return false;
 
-		let nearEndLine = (index: number): boolean => {
+		const nearEndLine = (index: number): boolean => {
 			if (index > gMaxLineChars * 0.8)
 				return true;
 
@@ -645,8 +645,8 @@ export class Sexpression extends LispAtom {
 		if (this.isPureLongList() && gLongListFormatAsSingleColumn == LongListFmts.kWideStyleSingleCol && !nearEndLine(startColumn))
 			return true;
 
-		let op = this.getLispOperator();
-		let opName = op.symbol.toLowerCase();
+		const op = this.getLispOperator();
+		const opName = op.symbol.toLowerCase();
 		if (!isInternalAutoLispOp(opName))
 			return false;
 
@@ -669,10 +669,10 @@ export class Sexpression extends LispAtom {
 		if (!this.isSameLineInRawText())
 			return false;
 
-		let op = this.getLispOperator();
+		const op = this.getLispOperator();
 		if (op == undefined)
 			return true;
-		let opsym = op.symbol;
+		const opsym = op.symbol;
 
 		// setq can not layout in the same line
 		if (opsym == "setq") {
@@ -682,7 +682,7 @@ export class Sexpression extends LispAtom {
 
 		for (let i = 2; i < this.atoms.length; i++) {
 			if (this.atoms[i] instanceof Sexpression) {
-				let subSxpr = this.atoms[i] as Sexpression;
+				const subSxpr = this.atoms[i] as Sexpression;
 				if (!subSxpr.canBeFormatAsPlain(startColumn))
 					return false;
 			}
@@ -690,7 +690,7 @@ export class Sexpression extends LispAtom {
 				return false;
 		}
 
-		let tryFmtStr = Sexpression.format(op, startColumn);
+		const tryFmtStr = Sexpression.format(op, startColumn);
 		if (tryFmtStr.indexOf("\n") != -1)
 			return false;
 
@@ -716,14 +716,14 @@ export class Sexpression extends LispAtom {
 		}
 
 		if (this.isQuote()) {
-			let quoteBody = this.atoms.slice(1);
-			let quoteExpr = new Sexpression();
+			const quoteBody = this.atoms.slice(1);
+			const quoteExpr = new Sexpression();
 			quoteExpr.setAtoms(quoteBody);
 			return quoteExpr.isValidSexpr();
 		}
 
-		let hasLeftParen = this.atoms[0].isLeftParen();
-		let hasRightParen = this.atoms[this.atoms.length - 1].isRightParen();
+		const hasLeftParen = this.atoms[0].isLeftParen();
+		const hasRightParen = this.atoms[this.atoms.length - 1].isRightParen();
 		if (hasLeftParen === hasRightParen) {
 			return true;
 		}
@@ -768,7 +768,7 @@ export class Sexpression extends LispAtom {
 	// All the atom index start from 0, and include the left parenthes
 	static format(exp: LispAtom | Sexpression, startColumn: number, asCond?: boolean): string {
 		if (exp instanceof Sexpression) {
-			let length = exp.length();
+			const length = exp.length();
 			if (exp.isDotPairs()) {
 				return exp.formatAsPlainStyle(startColumn);
 			}
@@ -776,11 +776,11 @@ export class Sexpression extends LispAtom {
 				return exp.formatQuote(startColumn);
 			}
 			else if (length > 4) {
-				let lispOperator = exp.getLispOperator();
+				const lispOperator = exp.getLispOperator();
 				if (exp.atoms[0].isLeftParen() &&
 					!exp.canBeFormatAsPlain(startColumn)) {
 
-					let opName = lispOperator.symbol.toLowerCase();
+					const opName = lispOperator.symbol.toLowerCase();
 
 					if (opName == "if" || opName == "repeat" || opName == "while")
 						return exp.formatList(startColumn, 3);
@@ -830,13 +830,13 @@ export class Sexpression extends LispAtom {
 		else if (gIndentSpaces > 6)
 			gIndentSpaces = 6;
 
-		let parenStyle = closeParenStyle();
+		const parenStyle = closeParenStyle();
 		if (parenStyle.toString().toLowerCase() == "same line")
 			gClosedParenInSameLine = true;
 		else gClosedParenInSameLine = false;
 
 		if (!gHasSetLongListFormat) {
-			let listFmtStyle = longListFormatStyle();
+			const listFmtStyle = longListFormatStyle();
 			if (listFmtStyle.toString().toLowerCase() == "single column")
 				gLongListFormatAsSingleColumn = LongListFmts.kWideStyleSingleCol;
 			else gLongListFormatAsSingleColumn = LongListFmts.kFitToMargin;

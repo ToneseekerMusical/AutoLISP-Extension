@@ -1,16 +1,13 @@
-const gulp = require('gulp');
-const path = require('path');
+import { src, dest, series, task } from 'gulp';
+import { createProject } from 'gulp-typescript';
+import typescript from 'typescript';
+import { init, write } from 'gulp-sourcemaps';
+import del from 'del';
+import { through } from 'event-stream';
+import { publish, createVSIX } from 'vsce';
+import { createAdditionalLanguageFiles, rewriteLocalizeCalls } from 'vscode-nls-dev';
 
-const ts = require('gulp-typescript');
-const typescript = require('typescript');
-const sourcemaps = require('gulp-sourcemaps');
-const del = require('del');
-const runSequence = require('run-sequence');
-const es = require('event-stream');
-const vsce = require('vsce');
-const nls = require('vscode-nls-dev');
-
-const tsProject = ts.createProject('./tsconfig.json', { typescript });
+const tsProject = createProject('./tsconfig.json', { typescript });
 
 const inlineMap = true;
 const inlineSource = false;
@@ -19,19 +16,19 @@ const outDest = 'out';
 // If all VS Code langaues are support you can use nls.coreLanguages
 const languages = [
 	{ id: "zh-tw", folderName: "cht", transifexId: "zh-hant" },
-    { id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
-    { id: "fr", folderName: "fra" },
-    { id: "de", folderName: "deu" },
-    { id: "it", folderName: "ita" },
-    { id: "es", folderName: "esp" },
-    { id: "ja", folderName: "jpn" },
-    { id: "ko", folderName: "kor" },
-    { id: "ru", folderName: "rus" },
-    //{ id: "bg", folderName: "bul" }, // VS Code supports Bulgarian, but VS is not currently localized for it
+	{ id: "zh-cn", folderName: "chs", transifexId: "zh-hans" },
+	{ id: "fr", folderName: "fra" },
+	{ id: "de", folderName: "deu" },
+	{ id: "it", folderName: "ita" },
+	{ id: "es", folderName: "esp" },
+	{ id: "ja", folderName: "jpn" },
+	{ id: "ko", folderName: "kor" },
+	{ id: "ru", folderName: "rus" },
+	//{ id: "bg", folderName: "bul" }, // VS Code supports Bulgarian, but VS is not currently localized for it
 	{ id: "hu", folderName: "hun" }, // VS Code supports Hungarian, but VS is not currently localized for it
-    { id: "pt-br", folderName: "ptb", transifexId: "pt-BR" }
-    //{ id: "tr", folderName: "trk" },
-    //{ id: "cs", folderName: "csy" },
+	{ id: "pt-br", folderName: "ptb", transifexId: "pt-BR" }
+	//{ id: "tr", folderName: "trk" },
+	//{ id: "cs", folderName: "csy" },
 	//{ id: "pl", folderName: "plk" }
 ];
 
@@ -48,24 +45,24 @@ const internalNlsCompileTask = function () {
 };
 
 const addI18nTask = function () {
-	return gulp.src(['package.nls.json'])
-		.pipe(nls.createAdditionalLanguageFiles(languages, 'i18n'))
-		.pipe(gulp.dest('.'));
+	return src(['package.nls.json'])
+		.pipe(createAdditionalLanguageFiles(languages, 'i18n'))
+		.pipe(dest('.'));
 };
 
-const buildTask = gulp.series(cleanTask, internalNlsCompileTask, addI18nTask);
+const buildTask = series(cleanTask, internalNlsCompileTask, addI18nTask);
 
 const doCompile = function (buildNls) {
 	var r = tsProject.src()
-		.pipe(sourcemaps.init())
+		.pipe(init())
 		.pipe(tsProject()).js
-		.pipe(buildNls ? nls.rewriteLocalizeCalls() : es.through())
-		.pipe(buildNls ? nls.createAdditionalLanguageFiles(languages, 'i18n', 'out') : es.through());
+		.pipe(buildNls ? rewriteLocalizeCalls() : through())
+		.pipe(buildNls ? createAdditionalLanguageFiles(languages, 'i18n', 'out') : through());
 
 	if (inlineMap && inlineSource) {
-		r = r.pipe(sourcemaps.write());
+		r = r.pipe(write());
 	} else {
-		r = r.pipe(sourcemaps.write("../out", {
+		r = r.pipe(write("../out", {
 			// no inlined source
 			includeContent: inlineSource,
 			// Return relative source map root directories per file.
@@ -73,25 +70,25 @@ const doCompile = function (buildNls) {
 		}));
 	}
 
-	return r.pipe(gulp.dest(outDest));
+	return r.pipe(dest(outDest));
 }
 
 const vscePublishTask = function () {
-	return vsce.publish();
+	return publish();
 };
 
 const vscePackageTask = function () {
-	return vsce.createVSIX();
+	return createVSIX();
 };
 
-gulp.task('default', buildTask);
+task('default', buildTask);
 
-gulp.task('clean', cleanTask);
+task('clean', cleanTask);
 
-gulp.task('compile', gulp.series(cleanTask, internalCompileTask));
+task('compile', series(cleanTask, internalCompileTask));
 
-gulp.task('build', buildTask);
+task('build', buildTask);
 
-gulp.task('publish', gulp.series(vscePublishTask));
+task('publish', series(vscePublishTask));
 
-gulp.task('package', gulp.series(vscePackageTask));
+task('package', series(vscePackageTask));

@@ -17,7 +17,7 @@ export async function CheckUnsavedChanges(): Promise<boolean> {
     // get unsaved source files
     const unsavedFiles = vscode.workspace.textDocuments.filter(file => {
         if (file.isDirty) {
-            for (let fileNode of root.sourceFiles) {
+            for (const fileNode of root.sourceFiles) {
                 if (pathEqual(fileNode.filePath, file.fileName, false)) {
                     return true;
                 }
@@ -28,15 +28,15 @@ export async function CheckUnsavedChanges(): Promise<boolean> {
     
     // prompt user if there are unsaved changes
     if (root.projectModified || unsavedFiles.length > 0) {
-        let msg = localize("autolispext.project.checkunsavedchanges.message", "Unsaved changes found with the project or the files in the project.\nDo you want to save the changes?");
-        let save = localize("autolispext.project.checkunsavedchanges.save", "Save");
-        let dontSave = localize("autolispext.project.checkunsavedchanges.dontsave", "Don't Save");
+        const msg = localize("autolispext.project.checkunsavedchanges.message", "Unsaved changes found with the project or the files in the project.\nDo you want to save the changes?");
+        const save = localize("autolispext.project.checkunsavedchanges.save", "Save");
+        const dontSave = localize("autolispext.project.checkunsavedchanges.dontsave", "Don't Save");
         const selection = await vscode.window.showWarningMessage(msg, {modal: true}, save, dontSave);
         if (!selection) {
             return true;
         }
         if (selection == save) {
-            for (let file of unsavedFiles) {
+            for (const file of unsavedFiles) {
                 file.save();
             }
             if (root.projectModified) {

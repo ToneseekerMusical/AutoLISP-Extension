@@ -6,7 +6,7 @@ import * as vscode from 'vscode';
 export let internalLispFuncs: Array<string> = [];
 export let internalDclKeys: Array<string> = [];
 export let winOnlyListFuncPrefix: Array<string> = [];
-export let allCmdsAndSysvars: Array<string> = [];
+export const allCmdsAndSysvars: Array<string> = [];
 export let isLoaded = false;
 
 export function loadAllResources(){
@@ -17,7 +17,7 @@ export function loadAllResources(){
 	 readDataFileByLine("../extension/data/alldclkeys.txt", (items) => { internalDclKeys = items; });
 	 readDataFileByLine("../extension/data/winonlylispkeys_prefix.txt", (items) => { winOnlyListFuncPrefix = items; });
 	 readDataFileByDelimiter("../extension/data/cmdAndVarsList.txt", ",", (item) => {
-		let isLispCmds = item.startsWith("C:") || item.startsWith("c:");
+		const isLispCmds = item.startsWith("C:") || item.startsWith("c:");
 		if (!isLispCmds && allCmdsAndSysvars.indexOf(item) < 0){
 			allCmdsAndSysvars.push(item);
 		}
@@ -33,7 +33,7 @@ export interface IJsonLoadable {
 
 
 function readJsonDataFile(datafile: string, intoObject: IJsonLoadable): void {
-	var dataPath = path.resolve(__dirname, datafile);
+	const dataPath = path.resolve(__dirname, datafile);
 	fs.readFile(dataPath, "utf8", function(err: Error, data: string) {        
 		if (err === null && intoObject["loadFromJsonObject"]) {
 			intoObject.loadFromJsonObject(JSON.parse(data));
@@ -43,9 +43,9 @@ function readJsonDataFile(datafile: string, intoObject: IJsonLoadable): void {
 
 
 function readDataFileByLine(datafile: string,action: (items: string[]) => void) {
-	var dataPath = path.resolve(__dirname, datafile);
+	const dataPath = path.resolve(__dirname, datafile);
 	try {
-		var data = fs.readFileSync(dataPath,{encoding:'utf8', flag:'r'});
+		const data = fs.readFileSync(dataPath,{encoding:'utf8', flag:'r'});
 		if (data.includes("\r\n")) {
 			action(data.split("\r\n"));
 		}
@@ -59,10 +59,10 @@ function readDataFileByLine(datafile: string,action: (items: string[]) => void) 
 
 
 function readDataFileByDelimiter(datafile: string, delimiter: string, action: (item: string) => void) {
-	var dataPath = path.resolve(__dirname, datafile);
+	const dataPath = path.resolve(__dirname, datafile);
 	try {
-		var data = fs.readFileSync(dataPath,{encoding:'utf8', flag:'r'});
-		var lineList: Array<String>;
+		const data = fs.readFileSync(dataPath,{encoding:'utf8', flag:'r'});
+		let lineList: Array<string>;
 			if (data.includes("\r\n")) {
 				lineList = data.split("\r\n");
 			}
@@ -71,8 +71,8 @@ function readDataFileByDelimiter(datafile: string, delimiter: string, action: (i
 			}
 
 			lineList.forEach(line => {
-				var items = line.split(delimiter);
-				var item = items[0];
+				const items = line.split(delimiter);
+				let item = items[0];
 				item = item.trim();
 				if (item.length > 0){
 					action(item);
@@ -86,12 +86,12 @@ function readDataFileByDelimiter(datafile: string, delimiter: string, action: (i
 
 
 export function getExtensionSettingString(settingName: string): string {
-    let settingGroup = vscode.workspace.getConfiguration('autolispext');
+    const settingGroup = vscode.workspace.getConfiguration('autolispext');
     if (!settingGroup) {
         return null;
 	}
 
-    let setting = settingGroup.get(settingName);
+    const setting = settingGroup.get(settingName);
     if (!setting) {
         return null;
 	}
@@ -101,12 +101,12 @@ export function getExtensionSettingString(settingName: string): string {
 
 
 export function getExtensionSettingBoolean(settingName: string): boolean {
-    let settingGroup = vscode.workspace.getConfiguration('autolispext');
+    const settingGroup = vscode.workspace.getConfiguration('autolispext');
     if (!settingGroup) {
         return null;
 	}
 
-    let setting = settingGroup.get(settingName);
+    const setting = settingGroup.get(settingName);
     if (!setting) {
         return null;
 	}

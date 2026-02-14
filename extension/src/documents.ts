@@ -5,7 +5,7 @@ import { AutoLispExt } from './context';
 import { ProjectTreeProvider } from "./project/projectTree";
 import * as fs from 'fs-extra';
 import { glob } from 'glob';
-import { DocumentServices } from './services/documentServices';
+import { DocumentServices, Selectors } from './services/documentServices';
 import { SymbolManager } from './symbols';
 
 
@@ -17,18 +17,17 @@ enum Origins {
 }
 
 
-interface DocumentSources {
+interface IDocumentSources {
 	native: vscode.TextDocument;
 	internal: ReadonlyDocument;
 	flags: Set<Origins>;
 }
 
-
-namespace DocumentSources {
-	export function create(source: Origins, path: string): DocumentSources;
-	export function create(source: Origins, nDoc: vscode.TextDocument): DocumentSources;
-	export function create(source: Origins, iDoc: ReadonlyDocument): DocumentSources;
-	export function create(source: Origins, context: vscode.TextDocument | ReadonlyDocument | string): DocumentSources {
+class DocumentSources {
+	static create(source: Origins, path: string): IDocumentSources;
+	static create(source: Origins, nDoc: vscode.TextDocument): IDocumentSources;
+	static create(source: Origins, iDoc: ReadonlyDocument): IDocumentSources;
+	static create(source: Origins, context: vscode.TextDocument | ReadonlyDocument | string): IDocumentSources {
 		if (context instanceof ReadonlyDocument) {
 			return { native: null, internal: context, flags: new Set([source]) };
 		} else if (typeof (context) === 'string') {
@@ -42,7 +41,7 @@ namespace DocumentSources {
 let _instance: DocumentManager;
 
 export class DocumentManager {
-	private _cached: Map<string, DocumentSources> = new Map();
+	private _cached: Map<string, IDocumentSources> = new Map();
 	private _watchers: vscode.FileSystemWatcher[] = [];
 
 	static get Instance(): DocumentManager {
@@ -117,10 +116,8 @@ export class DocumentManager {
 				try {
 					const file = await glob(entry.glob, { cwd: entry.root, nocase: true, realpath: true });
 					this._excludes.push(...file.map(p => DocumentServices.normalizeFilePath(p)));
-				} catch {
-					(err) => {
-						console.error(err)
-					}
+				} catch (err) {
+					console.error(err)
 				}
 			}
 		});
@@ -129,7 +126,7 @@ export class DocumentManager {
 	}
 
 
-	private tryUpdateInternal(sources: DocumentSources) {
+	private tryUpdateInternal(sources: IDocumentSources) {
 		if (sources.native && (!sources.internal || !sources.internal.equal(sources.native))) {
 			sources.internal = ReadonlyDocument.getMemoryDocument(sources.native);
 			if (DocumentServices.hasUnverifiedGlobalizers(sources.internal)) {
@@ -148,7 +145,7 @@ export class DocumentManager {
 		}
 
 		const docType = this.getSelectorType(key);
-		const isAllowedType = docType === DocumentServices.Selectors.LSP || docType === DocumentServices.Selectors.DCL;
+		const isAllowedType = docType === Selectors.LSP || docType === Selectors.DCL;
 		if (!isAllowedType) {
 			return '';
 		}
@@ -170,7 +167,7 @@ export class DocumentManager {
 		}
 
 		const docType = this.getSelectorType(key);
-		const isAllowedType = docType === DocumentServices.Selectors.LSP || docType === DocumentServices.Selectors.DCL;
+		const isAllowedType = docType === Selectors.LSP || docType === Selectors.DCL;
 		if (!isAllowedType) {
 			return '';
 		}
@@ -261,7 +258,7 @@ export class DocumentManager {
 		//		Our first opportunity to capture these previously opened documents is when they are activated. **Unavoidable Technical Debt that needs future resolution**
 		if (vscode.window.activeTextEditor) {
 			const docType = this.getSelectorType(vscode.window.activeTextEditor.document.fileName);
-			if (docType == DocumentServices.Selectors.LSP || docType == DocumentServices.Selectors.DCL) {
+			if (docType == Selectors.LSP || docType == Selectors.DCL) {
 				this.documentConsumeOrValidate(vscode.window.activeTextEditor.document, Origins.OPENED);
 			}
 		}

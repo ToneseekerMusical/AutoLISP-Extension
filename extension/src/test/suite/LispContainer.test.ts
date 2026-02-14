@@ -11,10 +11,10 @@ suite("LispContainer Tests", function () {
 
 	let roDoc: ReadonlyDocument;
 	let frags: Array<ILispFragment>;
-	
-	let pos1: Position = new Position(98,  100); // based on line: "           downloadPdfs (cadr (NS:ACAD:ListBox "Select PDFs to Download" "Download Drawings" (acad_strlsort (mapcar 'car contractDrawings)) t)))"
-	let pos2: Position = new Position(100, 100); // based on line: "     (setq downloadPath (caadr (NS:ACAD:DirPicker "Select Download Path" "Download files" GV:ProjPath)))""
-	
+
+	const pos1: Position = new Position(98, 100); // based on line: "           downloadPdfs (cadr (NS:ACAD:ListBox "Select PDFs to Download" "Download Drawings" (acad_strlsort (mapcar 'car contractDrawings)) t)))"
+	const pos2: Position = new Position(100, 100); // based on line: "     (setq downloadPath (caadr (NS:ACAD:DirPicker "Select Download Path" "Download files" GV:ProjPath)))""
+
 	let container: LispContainer;
 	let defunRef: LispContainer;
 	let defunAlt: LispContainer;
@@ -37,12 +37,12 @@ suite("LispContainer Tests", function () {
 			parent1 = container.getParentOfExpression(exp1);
 			parent2 = container.getParentOfExpression(exp2);
 			setq1 = container.atoms[2].body;
-		} catch (error) {
-			assert.fail("Failed to initialize shared suite data sources");
+		} catch (err) {
+			assert.fail(`Failed to initialize shared suite data sources ${err}`);
 		}
 	});
 
-	
+
 
 
 	test("LispContainer.findChildren(Defun & Foreach) on whole document", function () {
@@ -52,7 +52,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(items.length, 13);
 		}
 		catch (err) {
-			assert.fail("Invalid quantity, has the LSP changed?");
+			assert.fail(`Invalid quantity, has the LSP changed ?  ${err}`);
 		}
 	});
 
@@ -64,7 +64,7 @@ suite("LispContainer Tests", function () {
 			assert.isTrue(defunAlt.equal(defunRef));
 		}
 		catch (err) {
-			assert.fail("The Container extracted using findChildren() did not match the expected inline Container");
+			assert.fail(`The Container extracted using findChildren() did not match the expected inline Container ${err}`);
 		}
 	});
 
@@ -76,7 +76,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(defunRef.size(), 22);
 		}
 		catch (err) {
-			assert.fail('The test for size() did not return the expected number of ILispFragments');
+			assert.fail(`The test for size() did not return the expected number of ILispFragments ${err}`);
 		}
 	});
 
@@ -90,7 +90,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(defunLast.length(), 392);
 		}
 		catch (err) {
-			assert.fail('The test for length() did not return the expected number of internal ILispFragments');
+			assert.fail(`The test for length() did not return the expected number of internal ILispFragments ${err}`);
 		}
 	});
 
@@ -103,7 +103,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(defunRef.symbLine(false), 35);
 		}
 		catch (err) {
-			assert.fail('The test for symbLine() did not return the expected line numbers');
+			assert.fail(`The test for symbLine() did not return the expected line numbers ${err}`);
 		}
 	});
 
@@ -112,13 +112,13 @@ suite("LispContainer Tests", function () {
 
 	test("LispContainer.getRange()", function () {
 		try {
-			let txt = roDoc.getText(defunRef.getRange());									
+			let txt = roDoc.getText(defunRef.getRange());
 			assert.equal(txt.length, 6033);
 			txt = roDoc.getText(defunRef.atoms[3].getRange());
 			assert.equal(txt.length, 139);
 		}
 		catch (err) {
-			assert.fail("The text returned using the getRange() did not match the expected length");
+			assert.fail(`The text returned using the getRange() did not match the expected length ${err}`);
 		}
 	});
 
@@ -131,7 +131,7 @@ suite("LispContainer Tests", function () {
 			assert.isTrue(defunRef.contains(pos1));
 		}
 		catch (err) {
-			assert.fail("A Position known to exist within the desired Defun LispContainer failed containment check");
+			assert.fail(`A Position known to exist within the desired Defun LispContainer failed containment check ${err}`);
 		}
 	});
 
@@ -142,12 +142,12 @@ suite("LispContainer Tests", function () {
 		try {
 			assert.equal(defunRef.getAtomFromPos(pos2).symbol, 'GV:ProjPath');
 			assert.equal(defunRef.getAtomFromPos(pos1).symbol, 'acad_strlsort');
-			assert.equal(container.getAtomFromPos(new Position(0,0)).symbol, '; random sample file');
-			assert.equal(container.getAtomFromPos(new Position(146,5)), null);
-			assert.equal(container.getAtomFromPos(new Position(999,5)), null);
+			assert.equal(container.getAtomFromPos(new Position(0, 0)).symbol, '; random sample file');
+			assert.equal(container.getAtomFromPos(new Position(146, 5)), null);
+			assert.equal(container.getAtomFromPos(new Position(999, 5)), null);
 		}
 		catch (err) {
-			assert.fail("A known LispAtom value failed to be reported from a known Position");
+			assert.fail(`A known LispAtom value failed to be reported from a known Position ${err}`);
 		}
 	});
 
@@ -156,14 +156,14 @@ suite("LispContainer Tests", function () {
 
 	test("LispContainer.getExpressionFromPos()", function () {
 		try {
-			
+
 			assert.equal(exp1.length(), 43);
 			assert.equal(exp1.atoms[1].symbol, 'acad_strlsort');
 			assert.equal(exp2.length(), 68);
 			assert.equal(exp2.atoms[1].symbol, 'NS:ACAD:DirPicker');
 		}
 		catch (err) {
-			assert.fail("At least one known LispFragment failed to be located at a known Position");
+			assert.fail(`At least one known LispFragment failed to be located at a known Position ${err}`);
 		}
 	});
 
@@ -178,7 +178,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(parent2.atoms[1].symbol, 'caadr');
 		}
 		catch (err) {
-			assert.fail("At least one known LispContainer failed to be located at a known Position");
+			assert.fail(`At least one known LispContainer failed to be located at a known Position ${err}`);
 		}
 	});
 
@@ -190,7 +190,7 @@ suite("LispContainer Tests", function () {
 			let itemNext = setq1.nextKeyIndex(0, false);
 			assert.equal(itemNext, 1);
 			itemNext = setq1.nextKeyIndex(itemNext, false);
-			assert.equal(itemNext, 2);				
+			assert.equal(itemNext, 2);
 			itemNext = setq1.nextKeyIndex(itemNext, false);
 			assert.equal(itemNext, 5);
 			itemNext = setq1.nextKeyIndex(itemNext, false);
@@ -203,7 +203,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(itemNext, -1);
 		}
 		catch (err) {
-			assert.fail("Walking the first global SETQ did not produces the expected indices");
+			assert.fail(`Walking the first global SETQ did not produces the expected indices ${err}`);
 		}
 	});
 
@@ -227,7 +227,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(itemNext, -1);
 		}
 		catch (err) {
-			assert.fail("Walking the first global SETQ did not produces the expected indices");
+			assert.fail(`Walking the first global SETQ did not produces the expected indices ${err}`);
 		}
 	});
 
@@ -253,7 +253,7 @@ suite("LispContainer Tests", function () {
 			assert.isNull(setq1.getNthKeyAtom(7));
 		}
 		catch (err) {
-			assert.fail("Walking the first global SETQ did not produces the expected values");
+			assert.fail(`Walking the first global SETQ did not produces the expected values ${err}`);
 		}
 	});
 
@@ -266,7 +266,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(frags.length, 8);
 		}
 		catch (err) {
-			assert.fail("The fragment quantity from the LispContainer were not as expected");
+			assert.fail(`The fragment quantity from the LispContainer were not as expected ${err}`);
 		}
 	});
 
@@ -280,7 +280,7 @@ suite("LispContainer Tests", function () {
 			expect(sut.length).to.equal(data.flatIndex + 1);
 		}
 		catch (err) {
-			assert.fail("The flatten function did not produce the expected quantity of LispAtoms");
+			assert.fail(`The flatten function did not produce the expected quantity of LispAtoms ${err}`);
 		}
 	});
 
@@ -294,7 +294,7 @@ suite("LispContainer Tests", function () {
 			expect(sut.hasGlobalFlag).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("the 'userSymbols' collection was missing a known global flag annotation");
+			assert.fail(`the 'userSymbols' collection was missing a known global flag annotation ${err}`);
 		}
 	});
 
@@ -312,7 +312,7 @@ suite("LispContainer Tests", function () {
 			expect(container.atoms[1].isLispFragment()).to.equal(true);
 		}
 		catch (err) {
-			assert.fail("One of the common atom symbol value tests failed to recognize a scenario");
+			assert.fail(`One of the common atom symbol value tests failed to recognize a scenario ${err}`);
 		}
 	});
 
@@ -322,16 +322,16 @@ suite("LispContainer Tests", function () {
 	test("LispContainer.isPrimitive()", function () {
 		try {
 			// sut is used against regex instead of function, but accomplishes the same level of possible
-			const sut = ['\'', '.', '(', ')', 
-					     '"Single Line"', '"Multi\r\nLine"', 
-						 '; line comment', ';| multi-line\r\ncomment |;',
-						 'T', 't', 'nil', 'NiL', 'NIL',
-						 '123', '-123', '0.23', '-0.23', '3e-10', '-3e+10'
-						];
+			const sut = ['\'', '.', '(', ')',
+				'"Single Line"', '"Multi\r\nLine"',
+				'; line comment', ';| multi-line\r\ncomment |;',
+				'T', 't', 'nil', 'NiL', 'NIL',
+				'123', '-123', '0.23', '-0.23', '3e-10', '-3e+10'
+			];
 			sut.forEach(value => {
 				expect(primitiveRegex.test(value)).to.equal(true);
 			});
-			
+
 			// continue test with some known atoms
 			const data = container.flatten();
 			expect(data[0].isPrimitive()).to.equal(true);
@@ -343,7 +343,7 @@ suite("LispContainer Tests", function () {
 			expect(container.atoms[1].isPrimitive()).to.equal(false);
 		}
 		catch (err) {
-			assert.fail("One of the primitive symbol value tests failed to recognize a known scenario");
+			assert.fail(`One of the primitive symbol value tests failed to recognize a known scenario ${err}`);
 		}
 	});
 
@@ -360,7 +360,7 @@ suite("LispContainer Tests", function () {
 			assert.equal(defunRef.atoms.length, count + frags.length);
 		}
 		catch (err) {
-			assert.fail("The count of ILispFragments did not match the expected quantity");
+			assert.fail(`The count of ILispFragments did not match the expected quantity ${err}`);
 		}
 	});
 

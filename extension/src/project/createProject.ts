@@ -9,7 +9,7 @@ import * as nls from 'vscode-nls';
 const localize = nls.loadMessageBundle();
 
 export async function getNewProjectFilePath() {
-    let label = localize("autolispext.project.createproject.createlabel", "Create");
+    const label = localize("autolispext.project.createproject.createlabel", "Create");
     const filterDesc = localize("autolispext.project.createproject.projectfilter", "AutoLISP Project Files");
     const options: vscode.SaveDialogOptions = {
         saveLabel: label,
@@ -17,12 +17,12 @@ export async function getNewProjectFilePath() {
     };
     options.filters[filterDesc] = ['prj'];
 
-    let fileUri = await vscode.window.showSaveDialog(options);    
+    const fileUri = await vscode.window.showSaveDialog(options);    
     if (fileUri) {
         if (path.basename(fileUri.fsPath).indexOf(' ') === -1) {
             return Promise.resolve(fileUri);
         } else {
-            let msg = localize("autolispext.project.createproject.nospaces", "Legacy PRJ naming rules do not allow spaces");
+            const msg = localize("autolispext.project.createproject.nospaces", "Legacy PRJ naming rules do not allow spaces");
             return Promise.reject(msg);
         }
     } else {
@@ -31,9 +31,9 @@ export async function getNewProjectFilePath() {
 }
 
 export async function createProject(prjFilePath: string) {
-    let prjPathUpper = prjFilePath.toUpperCase();
+    const prjPathUpper = prjFilePath.toUpperCase();
     if (prjPathUpper.endsWith(".PRJ") == false) {
-        let msg = localize("autolispext.project.createproject.onlyprjallowed", "Only PRJ files are allowed.");
+        const msg = localize("autolispext.project.createproject.onlyprjallowed", "Only PRJ files are allowed.");
         return Promise.reject(msg)
     }
 
@@ -44,7 +44,7 @@ export async function createProject(prjFilePath: string) {
     fileName = fileName.substring(0, fileName.length - 4);
 
     //create the project node
-    let root = new ProjectNode();
+    const root = new ProjectNode();
     root.projectName = fileName;
     root.projectFilePath = prjFilePath;
     root.projectDirectory = path.dirname(prjFilePath);

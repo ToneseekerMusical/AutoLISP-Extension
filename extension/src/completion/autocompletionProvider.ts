@@ -17,27 +17,27 @@ export function isInternalAutoLispOp(item: string): boolean {
 
 
 export function getCmdAndVarsCompletionCandidates(allCandiates: string[], word: string, userInputIsUpper: boolean): Array<vscode.CompletionItem> {
-	var hasUnderline = false;
+	let hasUnderline = false;
 	if (word[0] == "_") {
 		hasUnderline = true;
 		word = word.substring(1);
 	}
 
-	var hasDash = false;
+	let hasDash = false;
 	if (word[0] == "-") {
 		hasDash = true;
 	}
 
-	let suggestions: Array<vscode.CompletionItem> = [];
+	const suggestions: Array<vscode.CompletionItem> = [];
 	allCandiates.forEach((item) => {
-		var candidate = item;
+		let candidate = item;
 		if (userInputIsUpper)
 			candidate = item.toUpperCase();
 		else
 			candidate = item.toLowerCase();
 
 		if (candidate.startsWith(word)) {
-			var label = candidate;
+			let label = candidate;
 
 			// The _ symbol has special mean in AutoCAD commands, so we add the prefix if it matches the command name
 			if (hasUnderline)
@@ -57,16 +57,16 @@ export function getCmdAndVarsCompletionCandidates(allCandiates: string[], word: 
 }
 
 function getCompletionCandidates(allCandiates: string[], word: string, userInputIsUpper: boolean): Array<vscode.CompletionItem> {
-	let suggestions: Array<vscode.CompletionItem> = [];
+	const suggestions: Array<vscode.CompletionItem> = [];
 	allCandiates.forEach((item) => {
-		var candidate = item;
+		let candidate = item;
 		if (userInputIsUpper)
 			candidate = item.toUpperCase();
 		else
 			candidate = item.toLowerCase();
 
 		if (candidate.startsWith(word)) {
-			var label = candidate;
+			const label = candidate;
 			const completion = new vscode.CompletionItem(label);
 			suggestions.push(completion);
 		}
@@ -76,10 +76,10 @@ function getCompletionCandidates(allCandiates: string[], word: string, userInput
 }
 
 export function getMatchingWord(document: vscode.TextDocument, position: vscode.Position): [string, boolean] {
-	let linetext = document.lineAt(position).text;
+	const linetext = document.lineAt(position).text;
 
 	let word = document.getText(document.getWordRangeAtPosition(position));
-	let wordSep = " &#^()[]|;'\".";
+	const wordSep = " &#^()[]|;'\".";
 
 	// Autolisp has special word range rules and now VScode has some issues to check the "word" range, 
 	// so it needs this logic to check the REAL word range
@@ -88,7 +88,7 @@ export function getMatchingWord(document: vscode.TextDocument, position: vscode.
 	let length = 1;
 	let hasSetLen = false;
 	for (; pos >= 0; pos--) {
-		let ch = linetext.charAt(pos);
+		const ch = linetext.charAt(pos);
 		if (wordSep.includes(ch)) {
 			if (!hasSetLen)
 				length = word.length;
@@ -99,14 +99,14 @@ export function getMatchingWord(document: vscode.TextDocument, position: vscode.
 		hasSetLen = true;
 	}
 
-	var isupper = () => {
-		var lastCh = word.slice(-1);
-		var upper = lastCh.toUpperCase();
+	const isupper = () => {
+		const lastCh = word.slice(-1);
+		const upper = lastCh.toUpperCase();
 		if (upper != lastCh.toLowerCase() && upper == lastCh)
 			return true;
 		return false;
 	}
-	var inputIsUpper = isupper();
+	const inputIsUpper = isupper();
 	if (inputIsUpper)
 		word = word.toUpperCase();
 	else word = word.toLowerCase();
@@ -115,8 +115,8 @@ export function getMatchingWord(document: vscode.TextDocument, position: vscode.
 }
 
 export function getLispAndDclCompletions(document: vscode.TextDocument, word: string, isupper: boolean): vscode.CompletionItem[] {
-	let currentLSPDoc = document.fileName;
-	let ext = currentLSPDoc.substring(currentLSPDoc.length - 4, currentLSPDoc.length).toUpperCase();
+	const currentLSPDoc = document.fileName;
+	const ext = currentLSPDoc.substring(currentLSPDoc.length - 4, currentLSPDoc.length).toUpperCase();
 	let candidatesItems = AutoLispExt.Resources.internalLispFuncs;
 	if (ext === ".DCL") {
 		candidatesItems = AutoLispExt.Resources.internalDclKeys;
@@ -129,7 +129,7 @@ export function getLispAndDclCompletions(document: vscode.TextDocument, word: st
 	}
 	else {
 		return allSuggestions.filter(function (suggestion) {
-			for (var prefix of AutoLispExt.Resources.winOnlyListFuncPrefix) {
+			for (const prefix of AutoLispExt.Resources.winOnlyListFuncPrefix) {
 				if (suggestion.label.toString().startsWith(prefix)) {
 					return false;
 				}
@@ -141,29 +141,30 @@ export function getLispAndDclCompletions(document: vscode.TextDocument, word: st
 
 export function registerAutoCompletionProviders() {
 	vscode.languages.registerCompletionItemProvider(['autolisp', 'lsp', 'autolispdcl'], {
-
+		//eslint-disable-next-line @typescript-eslint/no-unused-vars
 		provideCompletionItems(document: vscode.TextDocument, position: vscode.Position, token: vscode.CancellationToken, context: vscode.CompletionContext) {
 
 			try {
-				let linetext = document.lineAt(position).text;
-				if (linetext.startsWith(";") || linetext.startsWith(";;")
-					|| linetext.startsWith("#|")) {
+				const linetext = document.lineAt(position).text;
+				if ((linetext.startsWith(";") || linetext.startsWith(";;")
+					|| linetext.startsWith("#|")) && !token.isCancellationRequested) {
 					return [];
 				}
 
-				let [inputword, userInputIsUpper] = getMatchingWord(document, position);
-				if (inputword.length == 0)
+				const [inputword, userInputIsUpper] = getMatchingWord(document, position);
+				if (inputword.length == 0 && !token.isCancellationRequested)
 					return [];
 
-				var isInDoubleQuote = isCursorInDoubleQuoteExpr(document, position);
-				if (isInDoubleQuote) {
-					var cmds = getCmdAndVarsCompletionCandidates(AutoLispExt.Resources.allCmdsAndSysvars, inputword, userInputIsUpper);
+				const isInDoubleQuote = isCursorInDoubleQuoteExpr(document, position);
+				if (isInDoubleQuote && !token.isCancellationRequested) {
+					const cmds = getCmdAndVarsCompletionCandidates(AutoLispExt.Resources.allCmdsAndSysvars, inputword, userInputIsUpper);
 					return cmds;
 				}
 
 				return getLispAndDclCompletions(document, inputword, userInputIsUpper);
 			}
 			catch (err) {
+				console.error(err)
 				return [];
 			}
 		}
