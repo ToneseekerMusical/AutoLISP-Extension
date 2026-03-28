@@ -1,4 +1,4 @@
-import { getExtensionSettingString } from '../resources';
+import { AutoLispExt } from '../context';
 import { ReadonlyDocument } from '../project/readOnlyDocument';
 import { IJsonLoadable } from "../resources";
 import { WebHelpDclAtt, WebHelpDclTile, WebHelpEntity, WebHelpFunction, WebHelpObject } from './documentationObjects';
@@ -27,7 +27,7 @@ export class WebHelpLibrarySingleton implements IJsonLoadable {
 	}
 
 	get year(): string {
-		return this._testYear ?? getExtensionSettingString('help.TargetYear');
+		return this._testYear ?? AutoLispExt.Resources.getExtensionSettingString('help.TargetYear');
 	}
 
 	set year(value: string) {
@@ -74,7 +74,6 @@ export class WebHelpLibrarySingleton implements IJsonLoadable {
 		});
 		// The obj["events"] dictionary also exists but wasn't used because we really don't have a purpose for them right now.
 	}
-
 
 	// Searches the library dictionaries for a reference to the provided symbol name.
 	// If found, yields help URL relevant to that symbol, but otherwise outputs a filetypes contextual default help URL.

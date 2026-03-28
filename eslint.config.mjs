@@ -16,10 +16,7 @@ export default defineConfig(
 	tseslint.configs.recommended,
 	{
 		ignores: [
-			'.vscode/**',
 			'.vscode-test/**',
-			'images/**',
-
 			'out/**',
 			'utils/**',
 		]

@@ -13,15 +13,8 @@ const localize = nls.loadMessageBundle();
 const ambiguityError = localize("autolispext.hoverProvider.ambiguous", "Multiple definitions containing the @Global flag");
 
 export function AutoLispExtProvideHover(doc: ReadonlyDocument, position: vscode.Position): vscode.ProviderResult<vscode.Hover> {
-	if (doc.documentDclContainer) {
-		return handlersDCL.getHoverResults(doc, position);
-	}
-
-	if (doc.documentContainer) {
-		return handlersLSP.getHoverResults(doc, position);
-	}
-
-	return null;
+	return doc.documentDclContainer ? handlersDCL.getHoverResults(doc, position)
+		: doc.documentContainer ? handlersLSP.getHoverResults(doc, position) : null;
 }
 
 
@@ -59,7 +52,6 @@ const handlersLSP = {
 		if (!atom || atom.isPrimitive()) {
 			return null;
 		}
-
 		const key = atom.symbol.toLowerCase();
 		const markdown = this.getNativeResource(key) ?? this.getUserResources(key, roDoc, position);
 		if (markdown === null) {
@@ -72,20 +64,16 @@ const handlersLSP = {
 
 	getNativeResource(lowerKey: string): vscode.MarkdownString | Array<vscode.MarkdownString> {
 		const webHelp = AutoLispExt.WebHelpLibrary;
-
-		if (webHelp.ambiguousFunctions.has(lowerKey)) {
-			return webHelp.ambiguousFunctions.get(lowerKey).map(x => Annotation.asMarkdown(x));
+		switch (true) {
+			case webHelp.ambiguousFunctions.has(lowerKey):
+				return webHelp.ambiguousFunctions.get(lowerKey).map(x => Annotation.asMarkdown(x));
+			case webHelp.functions.has(lowerKey):
+				return Annotation.asMarkdown(webHelp.functions.get(lowerKey));
+			case webHelp.enumerators.has(lowerKey):
+				return Annotation.asMarkdown(webHelp.enumerators.get(lowerKey));
+			default:
+				return null
 		}
-
-		if (webHelp.functions.has(lowerKey)) {
-			return Annotation.asMarkdown(webHelp.functions.get(lowerKey));
-		}
-
-		if (webHelp.enumerators.has(lowerKey)) {
-			return Annotation.asMarkdown(webHelp.enumerators.get(lowerKey));
-		}
-
-		return null;
 	},
 
 

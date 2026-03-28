@@ -24,7 +24,6 @@ suite("Providers: Hover", function () {
 	let dcl: ReadonlyDocument;
 	let mock: ReadonlyDocument;
 
-
 	suiteSetup(async () => {
 		AutoLispExt.WebHelpLibrary.year = '2021';
 		lsp = ReadonlyDocument.open(lspPath);
@@ -113,7 +112,6 @@ suite("Providers: Hover", function () {
 		}
 	});
 
-
 	test("Primitives LSP|DCL - Expect Null", function () {
 		try {
 			const primitive1 = AutoLispExtProvideHover(lsp, new vscode.Position(18, 18));    // expect null - string
@@ -132,7 +130,6 @@ suite("Providers: Hover", function () {
 		}
 	});
 
-
 	test("UserDefined LSP - Markdown Verification", function () {
 		try {
 			const user1 = AutoLispExtProvideHover(lsp, new vscode.Position(7, 5));      // LoadGlobalVariables
@@ -150,7 +147,6 @@ suite("Providers: Hover", function () {
 			assert.fail(`One or more of the tracked UserDefined markdown representations drifted from expected results\n${err}`);
 		}
 	});
-
 
 	test("Native LSP - Markdown Verification", function () {
 		try {
@@ -173,7 +169,7 @@ suite("Providers: Hover", function () {
 			expect(normalize(fs.readFileSync(`${mdDir}/vlax-3d-point-2.md`, fileOps))).to.equal(native8['contents'][1].value);
 		}
 		catch (err) {
-			assert.fail(`One or more of the tracked Native LSP markdown representations drifted from expected results\n${err}`);
+			assert.fail(`One or more of the tracked Native LSP markdown representations drifted from expected results\n${AutoLispExtProvideHover(lsp, new vscode.Position(12, 8))}\n${err}`);
 		}
 	});
 

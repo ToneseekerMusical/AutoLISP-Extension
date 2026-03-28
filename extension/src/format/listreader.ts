@@ -131,7 +131,7 @@ export class ListReader {
 	peek(incr?: number) { return this.input.peek(incr); };
 
 	readWhen(pred) {
-		let buf = "", ch;
+		let buf = "", ch: string;
 		while ((ch = this.peek()) && pred(ch)) {
 			buf += this.next();
 		}
@@ -158,7 +158,7 @@ export class ListReader {
 	}
 
 	skipBlanks() {
-		this.readWhen((ch) => {
+		this.readWhen((ch: string) => {
 			if (this.isBlank(ch))
 				return true;
 			const linefeed = ch == '\r' && this.peek(1) == '\n';
@@ -189,7 +189,7 @@ export class ListReader {
 		const scol = this.input.col;
 
 		const firstCh = this.next();
-		let res = this.readWhen((ch) => {
+		let res = this.readWhen((ch: string) => {
 
 			if (this.isBlank(ch))
 				return false;
